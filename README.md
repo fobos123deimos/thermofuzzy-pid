@@ -1,1 +1,279 @@
-# Fuzzy-Burn-in
+# Burn-in Chamber · Adaptive PID–Fuzzy Control
+
+<p>
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/MATLAB-Simulation-0076A8?style=flat-square" alt="MATLAB">
+  <img src="https://img.shields.io/badge/Simulink-Model%20generator-F6A623?style=flat-square" alt="Simulink model generator">
+  <img src="https://img.shields.io/badge/Control-Fuzzy%20PID-6B4EA0?style=flat-square" alt="Fuzzy PID">
+  <img src="https://img.shields.io/badge/Data-Synthetic%20only-lightgrey?style=flat-square" alt="Synthetic data only">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-BSD--3--Clause-blue?style=flat-square" alt="BSD-3 Clause"></a>
+</p>
+
+A reproducible, notebook-centered research implementation of **adaptive Fuzzy-PID temperature control for an electronic-device burn-in chamber**. It includes the historical sparse fuzzy rule matrix from a 2021 undergraduate thesis, classical **Internal Model Control (IMC)** PID tuning, **MATLAB** implementations, a **Simulink model generator**, synthetic four-sensor data, automated tests and optional research extensions.
+
+**Resumo (PT-BR):** Implementação aberta do controlador PID-Fuzzy estudado no TCC, com equações, regras de pertinência, simulações reproduzíveis, MATLAB/Simulink e notebooks Python executáveis no Google Colab. Dados sintéticos são separados de parâmetros efetivamente relatados no trabalho. As propostas novas são experimentais e não devem ser confundidas com resultados físicos validados.
+
+> **Scientific integrity:** The original PDF and measured temperature time series are **not distributed in this repository**. The original TCC's reported ~22% faster temperature rise and ~3% faster door-disturbance response were obtained under its own setup; we **do not claim to reproduce** those results. Every generated dataset is explicitly labeled **synthetic**. MATLAB and Simulink source is provided but has not been runtime-tested here because MATLAB was unavailable.
+
+## Academic context
+
+> **Source:** Matheus Gomes Cordeiro. *Projeto de um Controlador PID-Fuzzy para a Câmara de Burn-in.* Undergraduate thesis (Computer Engineering), Universidade Federal do Ceará (UFC), Fortaleza, **2021**. Approved on **10 September 2021**.
+>
+> **Author / maintainer:** [Matheus Gomes Cordeiro](https://github.com/fobos123deimos)
+>
+> **Advisor:** **Prof. Dr. José Tarcísio Costa Filho** — [Currículo Lattes (official link listed by UFC)](https://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4785436Z5&metodo=apresentar) · [UFC faculty directory](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/)
+
+## Navigation
+
+- [Project goals](#project-goals)
+- [Google Colab notebooks](#google-colab-notebooks)
+- [Physical model](#physical-model)
+- [PID and IMC tuning](#pid-and-imc-tuning)
+- [Adaptive Mamdani fuzzy gains](#adaptive-mamdani-fuzzy-gains)
+- [Reproducibility and data provenance](#reproducibility-and-data-provenance)
+- [Results of the included synthetic benchmark](#results-of-the-included-synthetic-benchmark)
+- [Run in Python](#run-in-python)
+- [Run in MATLAB and Simulink](#run-in-matlab-and-simulink)
+- [Repository layout](#repository-layout)
+- [Research directions and limitations](#research-directions-and-limitations)
+- [References](#references)
+
+## Project goals
+
+1. **Traceable implementation:** transcribe the thesis's identified FOPDT parameters, 7 × 7 sparse rule table and normalized gain ranges.
+2. **Reproducible evaluation:** run matched, deterministic closed-loop scenarios with IMC-PID, sparse PID-Fuzzy and a new dense/smoothed variant.
+3. **Python + MATLAB:** provide independent implementations and documented input/output conventions.
+4. **Simulink:** generate `.slx` closed-loop models programmatically (requires local MATLAB/Simulink).
+5. **Research extensions:** interpolate deliberately omitted rules, smooth gains, use derivative filtering/anti-windup, test uncertainty and tune hybrid fuzzy/IMC gains.
+
+```mermaid
+flowchart LR
+  R[Reference 65 °C] --> C[PID controller]
+  S[Sensor measurement] --> E[Error and delta-error]
+  E --> F[Mamdani fuzzy rules and MOM]
+  F --> G[Adaptive Kp Ki Kd]
+  G --> C
+  C --> A[Actuator 0..10]
+  D[Door disturbance] --> P[Thermal FOPDT plant]
+  A --> P
+  P --> Q[Chamber temperature]
+  Q --> H[Sensor delay]
+  H --> S
+```
+
+## Google Colab notebooks
+
+Each `.ipynb` includes mathematical Markdown, runnable Python, plots and its own **Open in Colab** badge. Colab installs the Python package from this repository on first run.
+
+| Notebook | Main workflow | Colab |
+|---|---|---|
+| [01 — Thermal modeling and identification](notebooks/01_thermal_model_identification.ipynb) | FOPDT transfer function, deterministic four-sensor synthetic data, least-squares identification and validation plot | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/01_thermal_model_identification.ipynb) |
+| [02 — Fuzzy rules and benchmark](notebooks/02_fuzzy_pid_and_benchmark.ipynb) | Mamdani M-o-M inference, sparse/dense rule surfaces, PI(D)/IMC comparison and metrics | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/02_fuzzy_pid_and_benchmark.ipynb) |
+| [03 — Uncertainty and robustness](notebooks/03_uncertainty_and_robustness.ipynb) | Paired Monte Carlo tests under uncertain gains, time constants, delays, noise and disturbances | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/03_uncertainty_and_robustness.ipynb) |
+| [04 — Fuzzy optimization](notebooks/04_fuzzy_optimization.ipynb) | Differential evolution of smoothing/mixing factors, held-out synthetic evaluation and ablation | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/04_fuzzy_optimization.ipynb) |
+
+## Physical model
+
+### First-order plus dead time (FOPDT)
+
+The thesis models the **combined heating/sensor response** in Laplace coordinates as
+
+$$
+\boxed{G(s)H(s) = \frac{\bar K e^{-\theta s}}{\bar\tau s + 1}} \tag{1}
+$$
+
+where $\bar K$ is process/sensor steady-state gain, $\bar\tau$ (s) is the time constant, and $\theta$ (s) is effective dead time. The nominal **mean of measured temperatures** model reported in Section 3.1 is:
+
+$$\boxed{\bar K=7.624,\qquad\bar\tau=151.6\,\mathrm{s},\qquad\theta=8.78\,\mathrm{s}.}\tag{2}$$
+
+| Identified case in TCC | Gain $K$ | Time constant $\tau$ (s) | Dead time $\theta$ (s) |
+|---|---:|---:|---:|
+| TH37 sensor | 8.7135 | 326.18 | 13.677 |
+| TH34 sensor | 7.7473 | 177.95 | 13.064 |
+| Mean of TH22/TH37/TH40/TH34 measured temperatures | **7.624** | **151.6** | **8.78** |
+| Mean of independently estimated model parameters | 8.028 | 186.5 | 12.5 |
+
+For a *synthetic* scalar plant state $T(t)$, we model equivalent heater input $u$ and door heat loss $d$ through
+
+$$\boxed{\tau \frac{dT}{dt}=-(T-T_a)+K\,[u(t)+d(t)]} \tag{3}$$
+
+and the sensor reads $y(t)=T(t-\theta)+\eta(t)$, with additive noise $\eta$. This is a **modeling choice** that allocates the effective dead time to the sensor. The original thesis does not uniquely identify this physical allocation or an independent door-transfer function. $T_a=30$ °C, $u\in[0,10]$ in *effective heater units*, and the door amplitudes are illustrative assumptions. Neither the units of $K$ nor the thermal safety bounds should be interpreted as a validated actuator calibration.
+
+Exact zero-order-hold integration of Eq. (3), assuming constant effective input over $\Delta t$, gives
+
+$$
+T_{k+1}=T_a+e^{-\Delta t/\tau}(T_k-T_a)+K(1-e^{-\Delta t/\tau})(u_k+d_k). \tag{4}
+$$
+
+For a unit step with ambient initial condition, the transfer-function step response is
+
+$$T_{\mathrm{sensor}}(t)=T_a+K\left[1-e^{-(t-\theta)_+/\tau}\right],\quad(x)_+=\max(0,x).\tag{5}$$
+
+## PID and IMC tuning
+
+The parallel/independent PID implemented in Python and MATLAB is
+
+$$
+\boxed{u_{\rm raw}(t)=K_p(t)e(t)+\int_0^t K_i(\xi)e(\xi)\,d\xi-K_d(t)\frac{d y_f(t)}{dt}},\quad e(t)=r(t)-y(t).\tag{6}
+$$
+
+For time-varying $K_i$, the discrete implementation uses the current $K_i[k]$ in each integration increment, rather than multiplying the entire accumulated error by a varying $K_i$. Derivative action is **on measurement**, low-pass filtered, to prevent derivative kick and reduce noise amplification. Output saturation with conditional integration provides basic **anti-windup**. This is a documented engineering extension to the thesis's comparison diagram.
+
+The IMC-PID tuning table in the TCC specifies
+
+$$\begin{aligned}
+K_p &= \frac{\tau+\theta/2}{K(\lambda+\theta)},\\
+T_i &= \tau+\theta/2,\\
+T_d &= \frac{\tau\theta}{2\tau+\theta}.
+\end{aligned}\tag{7}$$
+
+The ISA-to-parallel conversion is $K_i=K_p/T_i$ and $K_d=K_pT_d$. At $\lambda=35.3273$ s, Eq. (7) yields approximately $K_p=0.464$, $T_i=155.99$ s, $T_d=4.267$ s, consistent with the source's rounded values $0.4640$, $156.0254$, and $4.2655$.
+
+> **Notation caveat:** The source manuscript uses $K_i$, $T_i$ and $K_d$, $T_d$ in a few different conventions. This repository consistently uses **independent gains** $(K_p,K_i,K_d)$ in the code and explicitly converts IMC/ISA parameters before simulation. See [Technical notes](docs/source_traceability.md).
+
+## Adaptive Mamdani fuzzy gains
+
+### Inputs, membership functions and inference
+
+The thesis builds a fuzzy inference system around error and error variation (Sec. 3.3; Fig. 14). The code resolves a source ambiguity by using $|e|\in[0,40]$ °C (the stated nonnegative domain) and signed $\Delta e=e_k-e_{k-1}\in[-40,40]$ °C. Each input has **7** linguistic terms (`NB`, `NM`, `NS`, `Z`, `PS`, `PM`, `PB`), with **2 endpoint shoulders** and **5 triangular** interior MFs. Each output uses **5 triangular** categories (`S`, `MS`, `M`, `MB`, `B`) on $[0,1]$.
+
+For a rule $j$ and output coordinate $z$:
+
+$$w_j=\min\!\big(\mu_{A_j}(|e|),\mu_{B_j}(\Delta e)\big),\qquad
+\mu_{\rm agg}(z)=\max_j \min(w_j,\mu_{C_j}(z)).\tag{8}$$
+
+Defuzzification uses **Mean of Maxima (M-o-M)** on a documented 201-point grid, rather than the centroid:
+
+$$\boxed{z^*=\frac{1}{|\mathcal M|}\sum_{z\in\mathcal M}z,\quad
+\mathcal M=\arg\max_{z\in\{0,0.005,\ldots,1\}}\mu_{\rm agg}(z)}.\tag{9}$$
+
+Finally (Eq. 2.14 in the TCC), normalize each scheduled independent PID gain:
+
+$$\boxed{K_j=K_{j,\min}+(K_{j,\max}-K_{j,\min})\,K'_j,\quad j\in\{p,i,d\}}.\tag{10}$$
+
+| Gain | Minimum | Maximum |
+|---|---:|---:|
+| $K_p$ | 0.35 | 0.90 |
+| $K_i$ | 0.0008 | 0.045 |
+| $K_d$ | 0 | 2.0 |
+
+### Missing rules and newly proposed extensions
+
+The source's **Figure 15** has 7 delta-error rows × 7 error columns; it deliberately leaves the entire **NM** and **PM** error columns unspecified and some individual gain consequents unspecified. These omissions are represented precisely in `src/burnin_pid_fuzzy/fuzzy.py` and `matlab/fuzzy_rule_matrix.m`.
+
+- **Sparse (source-derived):** omitted input combinations do not fire; unspecified output gains retain their previous values. This retention policy is a minimal implementation of the paper's stated behavior; an initialization of $0.5$ is an **assumption**.
+- **Dense (new experiment):** interpolate missing consequents across neighboring error categories and round to the nearest linguistic label. This creates a complete candidate rule table, **not** a claim about the original 2021 controller.
+- **Gain smoothing (new):** $\mathbf K'_k\gets(1-\gamma)\mathbf K'_{k-1}+\gamma\mathbf K'_{\rm MOM,k}$ to reduce rapid gain variation.
+- **Hybrid gain blending (new, Python):** $\mathbf K_k^{\rm hybrid}=\beta\mathbf K_k^{\rm fuzzy}+(1-\beta)\mathbf K^{\rm IMC}$; optimized **only using training simulations** in notebook 04.
+- **Filtered derivative, actuator limits, conditional anti-windup (new implementations):** make controlled assumptions explicit and guard against unbounded actuator requests.
+
+These are *testable hypotheses*, not guaranteed performance improvements.
+
+## Reproducibility and data provenance
+
+| Item | Provenance | Where |
+|---|---|---|
+| $K,\tau,\theta$ for TH37, TH34 and two averages | Reported in the 2021 TCC, Section 3.1 | `models.py`, `thesis_parameters.m` |
+| Sparse rule consequents | Transcribed from TCC Figure 15; verified against rendered page | `fuzzy.py`, `fuzzy_rule_matrix.m` |
+| Fuzzy gain bounds | Reported in TCC Table 4 | `controllers.py` |
+| 65 °C target; door events near 2000 and 3000 s | Reported in TCC Section 3.4 | Scenario defaults |
+| Ambient, actuator scale, door amplitudes, white-noise magnitude | **Assumed**, not measured | `Scenario` and `provenance.json` |
+| TH22 and TH40 individual FOPDT values | **Synthetic assumptions** | `scripts/generate_data.py` |
+| Raw time series, original Simulink files, experimental cross-validation | **Not available** | Not represented as real measurements |
+
+The provided CSV has deterministic noise seed **2021**. The generated benchmark uses a 3750 s simulation, 1-second sample period, and two **assumed** door disturbances: −5 effective heater units from 2000–2060 s and from 3000–3300 s. Different physical actuator ranges or disturbance channels change the ranking.
+
+## Results of the included synthetic benchmark
+
+![Synthetic PID/Fuzzy comparison](images/synthetic_controller_comparison.png)
+
+The CSV `data/synthetic/benchmark_metrics.csv` is regenerated by the benchmark script. The following are **computed only for the declared synthetic assumptions** and should not be compared numerically with the original TCC's timing percentages:
+
+| Controller | 10–90% rise (s) | Time to 60 °C (s) | IAE (°C·s) | Recovery after 2nd door (s) |
+|---|---:|---:|---:|---:|
+| IMC-PID | 135.9 | 123.6 | 6053.6 | 291 |
+| Fuzzy sparse (TCC rules) | 152.0 | 136.7 | 6213.7 | 201 |
+| Fuzzy dense + smoothed | 245.1 | 174.8 | 7114.7 | 231 |
+
+**Interpretation:** under this particular synthetic actuator and disturbance setup, IMC produces lower total absolute error; the sparse fuzzy rules recover faster after the second synthetic disturbance. Completing the table **did not improve tracking** in this initial comparison. That is a useful negative result, supporting further tuning and ablation instead of promotional performance claims. See [Experimental protocol](docs/experimental_protocol.md).
+
+## Run in Python
+
+```bash
+# Python 3.10+
+git clone https://github.com/fobos123deimos/Fuzzy-Burn-in.git
+cd Fuzzy-Burn-in
+python -m pip install -e '.[notebook,test]'
+python -m pytest -q
+python scripts/generate_data.py
+python scripts/run_benchmark.py
+jupyter lab
+```
+
+No GPU is required. Unit tests verify membership partitions, source-derived rules, M-o-M output bounds, IMC-to-ISA conversion, simulation determinism and bounded actuator control. GitHub Actions runs the tests for Python 3.10 and 3.12 after the project is pushed.
+
+## Run in MATLAB and Simulink
+
+Standalone MATLAB functions require **MATLAB**, but no fuzzy-specific toolbox:
+
+```matlab
+cd('matlab');
+run_experiments;
+```
+
+To **generate the Simulink `.slx` models from source**:
+
+```matlab
+cd('simulink');
+build_burnin_simulink;
+open_system('burnin_fuzzy_dense.slx');
+sim('burnin_fuzzy_dense');
+```
+
+The generator creates `burnin_imc.slx` and `burnin_fuzzy_dense.slx` with explicit thermal dynamics, sensor delay, a MATLAB Function PID controller, door-profile input and workspace outputs. Requires Simulink and the MATLAB Function block/Stateflow interface. The binary `.slx` files are **generated on the user's licensed MATLAB installation**; the generator and embedded controller code are versioned. They have **not** been executed/validated in this environment. Refer to [Simulink instructions](simulink/README.md).
+
+## Repository layout
+
+```text
+burn-in-pid-fuzzy/
+├── .github/workflows/tests.yml        # GitHub Actions CI
+├── README.md                          # Source, math, runs, provenance
+├── LICENSE                            # BSD-3-Clause
+├── pyproject.toml                     # Installable scientific Python package
+├── src/burnin_pid_fuzzy/
+│   ├── fuzzy.py                       # Exact sparse + new dense Mamdani scheduler
+│   ├── controllers.py                 # IMC and adaptive saturated PID
+│   ├── models.py                      # Sensor-delay FOPDT and door scenarios
+│   └── metrics.py                     # IAE, time-to-60, rise and recovery
+├── notebooks/
+│   ├── 01_thermal_model_identification.ipynb
+│   ├── 02_fuzzy_pid_and_benchmark.ipynb
+│   ├── 03_uncertainty_and_robustness.ipynb
+│   └── 04_fuzzy_optimization.ipynb
+├── matlab/                            # Standalone .m reference implementation
+├── simulink/                          # MATLAB script generates .slx models
+├── scripts/                           # Recreate notebooks, CSV and plots
+├── data/synthetic/                    # Only explicitly synthetic data/results
+├── docs/                              # Traceability and experiment protocol
+├── images/                            # Generated experiment plot
+└── tests/                             # Python unit tests
+```
+
+## Research directions and limitations
+
+The TCC suggests extending the fuzzy inputs to the **second derivative of error**, refining the rule base and comparing intelligent optimizers. Good next experiments include: a three-input rule system, constraints on rule smoothness, GA/PSO/evolutionary optimization with fair time budgets, sensor fusion across all four positions, realistic time-varying heat losses, actuator power measurements and held-out real chamber datasets.
+
+**Important:** The thermal plant is **single-zone** and not sufficient for operator safety or production burn-in validation. Running the controllers on physical equipment requires independent safety supervision, certified heater interlocks, sensor redundancy and thermal operating limits. No claims about energy savings, reliability qualification or guaranteed stability are made.
+
+## References
+
+1. Cordeiro, M. G. (2021). *Projeto de um Controlador PID-Fuzzy para a Câmara de Burn-in*. Undergraduate thesis, Universidade Federal do Ceará. **Source consulted privately; the PDF is intentionally not hosted here.**
+2. Ogata, K. (2011). *Engenharia de controle moderno*. Pearson.
+3. Simões, M. G., & Shaw, I. S. (2007). *Controle e modelagem fuzzy*. Edgard Blücher.
+4. Shahrokhi, M., & Zomorrodi, A. R. (2012). *Comparison of PID Controller Tuning Methods* (cited in the source TCC).
+5. MathWorks. [Programmatically editing Simulink models](https://www.mathworks.com/help/simulink/programmatic-modeling.html); [MATLAB Function block API](https://www.mathworks.com/help/simulink/slref/stateflow.emchart.html).
+6. UFC, Departamento de Engenharia de Teleinformática. [Official faculty directory and advisor Lattes link](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/).
+
+## License
+
+Released under [BSD 3-Clause](LICENSE). Based on academic research and new, clearly distinguished, open computational extensions.
