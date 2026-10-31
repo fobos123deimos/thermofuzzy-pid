@@ -1,0 +1,33 @@
+{
+  "seed": 2021,
+  "sample_interval_s": 5,
+  "data_type": "synthetic simulation, not original readings",
+  "noise_sd_c": 0.12,
+  "model": "ambient + K * (1-exp(-(t-theta)/tau)) for t>theta",
+  "sensors": {
+    "TH37": {
+      "K": 8.7135,
+      "tau_s": 326.18,
+      "theta_s": 13.677,
+      "provenance": "2021 TCC, Table/Section 3.1"
+    },
+    "TH34": {
+      "K": 7.7473,
+      "tau_s": 177.95,
+      "theta_s": 13.064,
+      "provenance": "2021 TCC, Table/Section 3.1"
+    },
+    "TH22": {
+      "K": 6.85,
+      "tau_s": 135.0,
+      "theta_s": 7.5,
+      "provenance": "assumed synthetic example"
+    },
+    "TH40": {
+      "K": 7.1852,
+      "tau_s": 155.0,
+      "theta_s": 8.5,
+      "provenance": "assumed synthetic example"
+    }
+  }
+}
