@@ -2,7 +2,7 @@ function [u,kp,ki,kd] = fuzzy_controller_block(reference, measured)
 %#codegen
 % Code-generation-compatible dense Fuzzy MOM scheduler and PID.
 % 1-second sample period, gain smoothing gamma=0.18.
-% Outputs correspond to original TCC Table 4 (independent gains).
+% Outputs correspond to original undergraduate thesis Table 4 (independent gains).
 persistent I filter_d last_y last_e normalized
 if isempty(I)
     I=0; filter_d=0; last_y=measured;
@@ -10,7 +10,7 @@ if isempty(I)
 end
 e=reference-measured;
 de=e-last_e;
-% Dense rule base interpolated from TCC Fig. 15; 1=S,2=MS,3=M,4=MB,5=B.
+% Dense rule base interpolated from undergraduate thesis Fig. 15; 1=S,2=MS,3=M,4=MB,5=B.
 R=zeros(7,7,3);
 R(:,:,1)=[3 3 2 3 2 4 5;
           2 2 2 3 2 4 5;

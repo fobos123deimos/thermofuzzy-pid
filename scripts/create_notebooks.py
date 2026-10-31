@@ -11,7 +11,7 @@ BASE = "https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/bl
 
 def make(name, title, intro, cells):
     badge = f'[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)]({BASE}{name})'
-    start = f'# {title}\n\n{badge}\n\n{intro}\n\n> **Data provenance:** experiments use deterministic synthetic thermal signals and parameters reported in a 2021 TCC. No original sensor time series have been recovered; numerical results do not reproduce or validate the published curves.'
+    start = f'# ThermoFuzzy-PID · {title}\n\n{badge}\n\n{intro}\n\n> **Data provenance:** experiments use deterministic synthetic thermal signals and parameters reported in a 2021 undergraduate thesis. No original sensor time series have been recovered; numerical results do not reproduce or validate the published curves.'
     setup = '''# Import local editable source, or install the repository in Google Colab.
 from pathlib import Path
 import sys, subprocess
@@ -46,7 +46,7 @@ np.set_printoptions(precision=4, suppress=True)
 
 make("01_thermal_model_identification.ipynb", "01 · Thermal model & system identification",
      "From the first-order-plus-dead-time model of the burn-in chamber to a reproducible synthetic step-test and nonlinear least-squares identification.", [
-("md", r'''## 1. Physical model and TCC provenance
+("md", r'''## 1. Physical model and thesis provenance
 
 The 2021 undergraduate thesis used a first-order-plus-dead-time approximation for the **combined plant and sensor** response (Eq. 2.1):
 
@@ -56,7 +56,7 @@ For a single unit heater step $u(t)=\Delta u\,1_{t\ge0}$ starting from ambient t
 
 $$T_{\mathrm{sensor}}(t)=T_a+K\Delta u\left(1-e^{-(t-\theta)_+/\tau}\right),\quad (x)_+=\max(x,0).\tag{2}$$
 
-The parameters reported in **TCC Section 3.1, pages 30–32** are shown below. These are *reported estimates*, not raw training measurements.'''),
+The parameters reported in **Section 3.1 of the thesis, pages 30–32** are shown below. These are *reported estimates*, not raw training measurements.'''),
 ("code", '''reported = pd.DataFrame([{"case": key, "K": p.K, "tau_s": p.tau, "theta_s": p.delay}
                          for key,p in PLANTS_FROM_THESIS.items()])
 print(reported.to_string(index=False))'''),
@@ -91,7 +91,7 @@ def residual(z):
 fit=least_squares(residual,[7.,250.,10.],bounds=([.01,1.,0.],[30.,2000.,100.]))
 truth=PLANTS_FROM_THESIS["TH37"]
 print("Fitted (synthetic):",dict(zip(["K","tau_s","theta_s"],fit.x.round(4))))
-print("Parameters cited in TCC:",truth)
+print("Thesis-reported parameters:",truth)
 print("RMSE (C):",np.sqrt(np.mean(fit.fun**2)))
 fig,ax=plt.subplots(figsize=(10,3.5))
 ax.plot(t,y,'.',ms=2,alpha=.45,label="synthetic noisy TH37")
@@ -111,7 +111,7 @@ $$I[k]=I[k-1]+K_i[k]\Delta t\,e[k].\tag{5}$$
 
 The derivative is on the **measurement**, filtered to avoid setpoint kick. The control is constrained to $u\in[0,10]$ with **conditional anti-windup**. These implementation choices are openly documented extensions, not exact replications of the original Simulink block.
 
-For a reference IMC-PID, the TCC (Table 2) uses
+For a reference IMC-PID, the undergraduate thesis (Table 2) uses
 
 $$K_p=\frac{\tau+\theta/2}{K(\lambda+\theta)},\quad T_i=\tau+\theta/2,\quad T_d=\frac{\tau\theta}{2\tau+\theta}.$$
 
@@ -122,7 +122,7 @@ print(imc)
 print("ISA form:","Kp=",round(imc.kp,4),"Ti=",round(imc.kp/imc.ki,4),"Td=",round(imc.kd/imc.kp,4))'''),
 ("md", r'''## 2. Fuzzification and M-o-M output
 
-The TCC has two inputs: $|e|\in[0,40]$, $\Delta e\in[-40,40]$ and three normalized outputs $K'_p,K'_i,K'_d\in[0,1]$ (Eqs. 2.13–2.14). Each input has **7** linguistic terms, and each output has **5**.
+The thesis-based fuzzy inference system has two inputs: $|e|\in[0,40]$, $\Delta e\in[-40,40]$ and three normalized outputs $K'_p,K'_i,K'_d\in[0,1]$ (Eqs. 2.13–2.14). Each input has **7** linguistic terms, and each output has **5**.
 
 For each rule $j$, the min-AND firing strength is $w_j=\min(\mu_{A_j}(|e|),\mu_{B_j}(\Delta e))$. Aggregation of clipped Mamdani output sets is
 
@@ -153,7 +153,7 @@ for mode,style in [("sparse","--"),("dense","-")]:
         ax[j].plot(E,values[:,j],style,label=mode)
         ax[j].set(xlabel="|error| (°C)",ylabel=name,ylim=(0,1));ax[j].grid(alpha=.2)
 ax[0].legend();plt.tight_layout();plt.show()'''),
-("md", "## 4. Closed-loop experiment: original sparse vs. proposed variants\n\nTCC references a 65 °C target, ~3750 s identification horizon and door perturbations around 2000 and 3000 s. Here we use explicitly **synthetic** 30 °C ambient, effective heater output 0–10, and two assumed -5 input-unit door events lasting 60 and 300 s. This is *not* the original test bench."),
+("md", "## 4. Closed-loop experiment: original sparse vs. proposed variants\n\nThe original thesis specifies a 65 °C setpoint, ~3750 s identification horizon and door perturbations around 2000 and 3000 s. Here we use explicitly **synthetic** 30 °C ambient, effective heater output 0–10, and two assumed -5 input-unit door events lasting 60 and 300 s. This is *not* the original test bench."),
 ("code", '''scenario=Scenario()
 runs=simulate_methods(scenario=scenario)
 summary=pd.DataFrame([{"controller":name,**evaluate(result,scenario)} for name,result in runs.items()])
@@ -168,7 +168,7 @@ for a in axes:
     a.grid(alpha=.2);a.legend()
 axes[0].set_ylabel("Temperature (°C)");axes[1].set_ylabel("Heater units")
 axes[1].set_xlabel("Time (s)");plt.tight_layout();plt.show()'''),
-("md", "## 5. Reading these results correctly\n\nThe 2021 TCC *reported* a roughly **22%** faster time-to-60 °C and a **3%** faster disturbance recovery for its PID-Fuzzy versus IMC, based on its own Simulink cases (Section 4). The fresh synthetic benchmark above can give **different rankings**, due to assumed actuator saturation, disturbance strengths, sensor model, fuzzy memberships, anti-windup, derivative treatment and missing original measurements. Do not present these outputs as independent confirmation of the published percentages.\n\n**Next:** [03 · Robustness](03_uncertainty_and_robustness.ipynb).")
+("md", "## 5. Reading these results correctly\n\nThe 2021 undergraduate thesis *reported* a roughly **22%** faster time-to-60 °C and a **3%** faster disturbance recovery for its PID-Fuzzy versus IMC, based on its own Simulink cases (Section 4). The fresh synthetic benchmark above can give **different rankings**, due to assumed actuator saturation, disturbance strengths, sensor model, fuzzy memberships, anti-windup, derivative treatment and missing original measurements. Do not present these outputs as independent confirmation of the published percentages.\n\n**Next:** [03 · Robustness](03_uncertainty_and_robustness.ipynb).")
 ])
 
 make("03_uncertainty_and_robustness.ipynb", "03 · Robustness & uncertainty",
@@ -190,7 +190,7 @@ for trial in range(n_trials):
                 doors=(DoorEvent(800,60,severity),DoorEvent(1500,180,severity)))
     methods={
       "IMC-fixed-nominal":FixedPID(imc_pid_gains(),dt=sc.dt),
-      "TCC-sparse-fuzzy":FuzzyPID(mode="sparse",dt=sc.dt),
+      "Thesis-sparse-fuzzy":FuzzyPID(mode="sparse",dt=sc.dt),
       "Dense-smoothed-fuzzy":FuzzyPID(mode="dense",smoothing=.18,dt=sc.dt)
     }
     for name,ctrl in methods.items():
@@ -214,7 +214,7 @@ fig,ax=plt.subplots(figsize=(10,3.6))
 labels=piv.columns.tolist();ax.boxplot([piv[c].dropna() for c in labels],tick_labels=labels)
 ax.set(ylabel="IAE (°C·s)",title="Monte Carlo: synthetic parameter uncertainty")
 ax.grid(alpha=.2,axis="y");plt.xticks(rotation=10);plt.tight_layout();plt.show()
-for candidate in ["TCC-sparse-fuzzy","Dense-smoothed-fuzzy"]:
+for candidate in ["Thesis-sparse-fuzzy","Dense-smoothed-fuzzy"]:
     delta=piv[candidate]-piv["IMC-fixed-nominal"]
     print(candidate,"median paired delta IAE (candidate - IMC):",round(float(delta.median()),2),
           "fraction of scenarios with less IAE:",round(float(np.mean(delta<0)),2))'''),
@@ -258,7 +258,7 @@ result=differential_evolution(objective,bounds=[(0.,1.),(.05,1.)],seed=42,
 beta,gamma=map(float,result.x)
 print("Synthetic training optimum (beta,gamma):",(round(beta,3),round(gamma,3)))
 print("Training objective:",round(result.fun,4),"evaluations:",result.nfev)'''),
-("md", "## 2. Held-out stress test: do not select hyperparameters on this data\n\nWe now evaluate on *different* $K$, $\tau$, $\theta$, door timing and severity, without retuning. We measure a vector of outcomes rather than collapsing the result into a single success percentage."),
+("md", "## 2. Held-out stress test: do not select hyperparameters on this data\n\nWe now evaluate on *different* $K$, $\\tau$, $\\theta$, door timing and severity, without retuning. We measure a vector of outcomes rather than collapsing the result into a single success percentage."),
 ("code", '''heldout_plant=Plant("heldout",7.624*1.15,151.6*.85,8.78*1.4)
 heldout=Scenario(duration=2200,dt=3,doors=(DoorEvent(640,80,-5.5),DoorEvent(1450,220,-4.5)))
 choices={
@@ -276,5 +276,5 @@ ax.axhline(65,color="black",ls="--",lw=1)
 for door in heldout.doors:ax.axvspan(door.start,door.start+door.duration,color="gray",alpha=.13)
 ax.set(xlabel="Time (s)",ylabel="Measured temperature (°C)");ax.grid(alpha=.2)
 ax.legend();plt.tight_layout();plt.show()'''),
-("md", "## 3. Extensions for a subsequent research project\n\n- Include acceleration $\\Delta^2 e[k]$ in a **3-input fuzzy system**, as suggested in TCC Section 5.\n- Tune missing rules with constrained Bayesian optimization or population heuristics; enforce smoothness/monotonicity and validate on held-out events.\n- Compare GA/PSO/neuro-fuzzy approaches under **the same uncertainty scenarios**, computation budgets and safety constraints.\n- Replace the single-zone approximation with identified multiple sensors and spatial models.\n- Compare tracking quality *and* actuator energy/variation; no current claim of energy savings is validated.\n\nAll extensions must be experimentally vetted before a physical burn-in chamber is driven by the controller.")
+("md", "## 3. Extensions for a subsequent research project\n\n- Include acceleration $\\Delta^2 e[k]$ in a **3-input fuzzy system**, as suggested in Section 5 of the thesis.\n- Tune missing rules with constrained Bayesian optimization or population heuristics; enforce smoothness/monotonicity and validate on held-out events.\n- Compare GA/PSO/neuro-fuzzy approaches under **the same uncertainty scenarios**, computation budgets and safety constraints.\n- Replace the single-zone approximation with identified multiple sensors and spatial models.\n- Compare tracking quality *and* actuator energy/variation; no current claim of energy savings is validated.\n\nAll extensions must be experimentally vetted before a physical burn-in chamber is driven by the controller.")
 ])

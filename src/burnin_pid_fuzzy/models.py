@@ -18,7 +18,7 @@ class Plant:
     K: float
     tau: float
     delay: float
-    provenance: str = "2021 TCC, Table/Section 3.1"
+    provenance: str = "2021 undergraduate thesis, Table/Section 3.1"
 
     def __post_init__(self):
         if self.K <= 0 or self.tau <= 0 or self.delay < 0:
@@ -121,7 +121,7 @@ def simulate_methods(plant=None, scenario=None, seed: int = 2021):
     methods = {
         "IMC-PID": FixedPID(imc_pid_gains(plant.K, plant.tau, plant.delay),
                             dt=scenario.dt, u_max=scenario.actuator_max),
-        "Fuzzy-TCC-sparse": FuzzyPID(mode="sparse", smoothing=1., dt=scenario.dt,
+        "Thesis Fuzzy-PID (sparse)": FuzzyPID(mode="sparse", smoothing=1., dt=scenario.dt,
                                      u_max=scenario.actuator_max),
         "Fuzzy-dense-smoothed": FuzzyPID(mode="dense", smoothing=.18, dt=scenario.dt,
                                          u_max=scenario.actuator_max),

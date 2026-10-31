@@ -1,6 +1,6 @@
 function normal = fuzzy_mom_gains(error, delta_error, previous, mode)
-%FUZZY_MOM_GAINS Mamdani min/max and mean-of-maxima (M-o-M), TCC Sec. 2.3.
-% Assumed equally spaced membership peaks (not fully specified in the TCC).
+%FUZZY_MOM_GAINS Mamdani min/max and mean-of-maxima (M-o-M), undergraduate thesis Sec. 2.3.
+% Assumed equally spaced membership peaks (not fully specified in the undergraduate thesis).
 % Nonnegative error input is interpreted as |r-y|; delta-error is signed.
 if nargin < 3 || isempty(previous), previous = [.5, .5, .5]; end
 if nargin < 4, mode = 'sparse'; end

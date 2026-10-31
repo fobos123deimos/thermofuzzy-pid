@@ -20,7 +20,7 @@ class PIDGains:
 
 def imc_pid_gains(K: float = 7.624, tau: float = 151.6,
                   theta: float = 8.78, lam: float = 35.3273) -> PIDGains:
-    """2021 TCC Table 2: IMC PID in independent/parallel convention.
+    """2021 undergraduate thesis Table 2: IMC PID in independent/parallel convention.
 
     Kp=(tau+theta/2)/(K*(lambda+theta)), Ti=tau+theta/2,
     Td=tau*theta/(2*tau+theta); Ki=Kp/Ti, Kd=Kp*Td.

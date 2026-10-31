@@ -1,6 +1,6 @@
 """Rule-based Mamdani fuzzy gain scheduler with mean-of-maxima defuzzification.
 
-The sparse consequents below were transcribed from TCC Figure 15 (page 36 of
+The sparse consequents below were transcribed from undergraduate thesis Figure 15 (page 36 of
 printed numbering). The implementation uses a stated *assumption* for the exact
 membership breakpoints: equally spaced, triangular interior with shoulder
 endpoints. Their complete coordinates are not tabulated in the thesis.
@@ -44,7 +44,7 @@ def _dense_rules_from_sparse() -> list[list[tuple[str, str, str]]]:
 
     For whole missing columns NM/PM, interpolate adjacent known categories.
     For isolated gain omissions (at PS for Ki), interpolate adjacent known
-    columns. These invented rules are *not* attributed to the 2021 TCC.
+    columns. These invented rules are *not* attributed to the 2021 undergraduate thesis.
     """
     table = np.full((7, 7, 3), np.nan)
     for i, row in enumerate(EXACT_SPARSE_RULES):

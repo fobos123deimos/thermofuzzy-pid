@@ -12,7 +12,7 @@ plot(C.time_s,C.measurement_c,'LineWidth',1.5);
 yline(p.reference,'--','Reference 65 C');
 xlabel('Time (s)'); ylabel('Measured temperature (C)');
 title('Synthetic Burn-in Controller Comparison (NOT measured data)');
-legend('IMC','TCC sparse Fuzzy','New dense + smoothed Fuzzy','Location','best');
+legend('IMC','Thesis Fuzzy-PID (sparse)','New dense + smoothed Fuzzy','Location','best');
 grid on;
 if ~exist('outputs','dir'), mkdir('outputs'); end
 writetable(A,fullfile('outputs','imc.csv'));

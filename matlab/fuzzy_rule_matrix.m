@@ -1,8 +1,8 @@
 function R = fuzzy_rule_matrix(mode)
-%FUZZY_RULE_MATRIX Consequents from Figure 15 (TCC printed page 36).
+%FUZZY_RULE_MATRIX Consequents from Figure 15 (undergraduate thesis printed page 36).
 % Shape: rows d(error), columns |error|, pages Kp, Ki, Kd.
 % Labels: S=1, MS=2, M=3, MB=4, B=5; zero means unspecified.
-% Whole NM and PM columns are missing in the original TCC.
+% Whole NM and PM columns are missing in the original undergraduate thesis.
 % With 'dense', zeros are filled by a novel interpolation assumption.
 if nargin < 1, mode = 'sparse'; end
 R = zeros(7,7,3);
