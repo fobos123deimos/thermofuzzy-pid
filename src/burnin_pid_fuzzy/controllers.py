@@ -34,11 +34,19 @@ def imc_pid_gains(K: float = 7.624, tau: float = 151.6,
 
 
 class FixedPID:
-    """Discrete PI(D) with derivative on measurement and conditional anti-windup."""
+    """Discrete PI(D), derivative on measurement, with configurable anti-windup."""
     def __init__(self, gains: PIDGains, dt: float = 1., u_min: float = 0.,
-                 u_max: float = 10., derivative_filter: float = 8.):
+                 u_max: float = 10., derivative_filter: float = 8.,
+                 anti_windup: str = "conditional", tracking_time: float | None = None):
         if dt <= 0 or u_max <= u_min or derivative_filter <= 0:
             raise ValueError("dt, u limits or derivative filter invalid")
+        if anti_windup not in {"conditional", "back_calculation"}:
+            raise ValueError("anti_windup must be 'conditional' or 'back_calculation'")
+        if tracking_time is not None and (not np.isfinite(tracking_time) or tracking_time < dt):
+            raise ValueError("tracking_time must be finite and >= dt")
+        self.anti_windup = anti_windup
+        # Tt >= dt makes the explicit Euler back-calculation correction bounded.
+        self.tracking_time = float(tracking_time if tracking_time is not None else max(dt, 10.0))
         self.gains = gains
         self.dt, self.u_min, self.u_max = dt, u_min, u_max
         self.derivative_filter = derivative_filter
@@ -59,10 +67,19 @@ class FixedPID:
         derivative = -gains.kd * self.filtered_derivative
         integral_candidate = self.integral + gains.ki * self.dt * error
         raw_candidate = proportional + integral_candidate + derivative
-        # Conditional integration: reject only integration *further into* saturation.
-        if not ((raw_candidate > self.u_max and error > 0) or
-                (raw_candidate < self.u_min and error < 0)):
-            self.integral = integral_candidate
+        if self.anti_windup == "conditional":
+            # Reject integration only when it drives the output *further* into saturation.
+            if not ((raw_candidate > self.u_max and error > 0) or
+                    (raw_candidate < self.u_min and error < 0)):
+                self.integral = integral_candidate
+        else:
+            # Back-calculation in independent gain convention, as described by
+            # the preliminary PI/PID engineering report in the private archive:
+            # I[k] = I[k-1] + dt*(Ki[k]*e[k] + (u_sat-u_raw)/Tt).
+            # This is a new, explicit implementation; the source report does not
+            # specify the original tracking time or digital discretization.
+            limited = float(np.clip(raw_candidate, self.u_min, self.u_max))
+            self.integral = integral_candidate + (self.dt / self.tracking_time) * (limited - raw_candidate)
         raw = proportional + self.integral + derivative
         output = float(np.clip(raw, self.u_min, self.u_max))
         self.previous_measurement = float(measurement)
