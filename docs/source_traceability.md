@@ -35,7 +35,7 @@
 
 ## Advisor identity
 
-Professor Dr. **José Tarcísio Costa Filho**, named as TCC supervisor on the title/approval page, is listed by the UFC DETI official staff directory with a direct Lattes link:
+Professor Dr. **José Tarcísio Costa Filho**, named as undergraduate thesis supervisor on the title/approval page, is listed by the UFC DETI official staff directory with a direct Lattes link:
 
 - [UFC faculty directory](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/)
 - [Lattes (UFC-listed official link)](https://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4785436Z5&metodo=apresentar)

@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "burnin-pid-fuzzy"
+name = "thermofuzzy-pid"
 version = "0.1.0"
-description = "Research-grade, synthetic-data benchmark for fuzzy gain-scheduled PID control of a burn-in chamber."
+description = "Reproducible research software for adaptive Fuzzy-PID thermal control of burn-in chambers."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "BSD-3-Clause"}

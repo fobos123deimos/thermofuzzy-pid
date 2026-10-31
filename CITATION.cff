@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: >-
+  If you use ThermoFuzzy-PID in research, cite this software and cite the
+  original 2021 undergraduate thesis when referring to its reported results.
+type: software
+title: 'ThermoFuzzy-PID: Adaptive Fuzzy-PID Thermal Control for Burn-In Chambers'
+abstract: >-
+  Reproducible Python and MATLAB code for adaptive Fuzzy-PID control of burn-in
+  chambers, including synthetic sensor data, system identification, robustness
+  benchmarks, experimental optimization, and Simulink model generation.
+authors:
+  - family-names: Cordeiro
+    given-names: Matheus Gomes
+repository-code: 'https://github.com/fobos123deimos/Fuzzy-Burn-in'
+version: 0.1.0
+license: BSD-3-Clause
+keywords:
+  - fuzzy PID
+  - burn-in chamber
+  - thermal control
+  - system identification
+  - MATLAB
+  - Simulink
+  - Python

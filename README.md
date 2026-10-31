@@ -1,4 +1,6 @@
-# Burn-in Chamber · Adaptive PID–Fuzzy Control
+# ThermoFuzzy-PID
+
+**Adaptive Fuzzy-PID Thermal Control for Burn-In Chambers**
 
 <p>
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+">
@@ -9,19 +11,19 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-BSD--3--Clause-blue?style=flat-square" alt="BSD-3 Clause"></a>
 </p>
 
-A reproducible, notebook-centered research implementation of **adaptive Fuzzy-PID temperature control for an electronic-device burn-in chamber**. It includes the historical sparse fuzzy rule matrix from a 2021 undergraduate thesis, classical **Internal Model Control (IMC)** PID tuning, **MATLAB** implementations, a **Simulink model generator**, synthetic four-sensor data, automated tests and optional research extensions.
+**ThermoFuzzy-PID** is a reproducible, notebook-centered research framework for **adaptive Fuzzy-PID thermal control in electronic-device burn-in chambers**. It builds on a 2021 undergraduate thesis and includes a traceable Mamdani fuzzy rule base, **Internal Model Control (IMC)** PID tuning, **Python and MATLAB** implementations, a **Simulink model generator**, synthetic four-sensor datasets, automated tests, robustness benchmarks, and experimental optimization workflows.
 
-**Resumo (PT-BR):** Implementação aberta do controlador PID-Fuzzy estudado no TCC, com equações, regras de pertinência, simulações reproduzíveis, MATLAB/Simulink e notebooks Python executáveis no Google Colab. Dados sintéticos são separados de parâmetros efetivamente relatados no trabalho. As propostas novas são experimentais e não devem ser confundidas com resultados físicos validados.
+**Scope:** Source-reported parameters are carefully separated from synthetic measurements and new numerical assumptions. Proposed enhancements remain exploratory and are **not** validated for physical hardware or industrial burn-in qualification.
 
-> **Scientific integrity:** The original PDF and measured temperature time series are **not distributed in this repository**. The original TCC's reported ~22% faster temperature rise and ~3% faster door-disturbance response were obtained under its own setup; we **do not claim to reproduce** those results. Every generated dataset is explicitly labeled **synthetic**. MATLAB and Simulink source is provided but has not been runtime-tested here because MATLAB was unavailable.
+> **Scientific integrity:** The original PDF and measured temperature time series are **not distributed in this repository**. The 2021 thesis reports ~22% faster temperature rise and ~3% faster door-disturbance response under its original conditions; this repository **does not claim to reproduce** those results. Every generated dataset is explicitly labeled **synthetic**. MATLAB and Simulink source is provided but has not been runtime-tested here because MATLAB was unavailable.
 
 ## Academic context
 
-> **Source:** Matheus Gomes Cordeiro. *Projeto de um Controlador PID-Fuzzy para a Câmara de Burn-in.* Undergraduate thesis (Computer Engineering), Universidade Federal do Ceará (UFC), Fortaleza, **2021**. Approved on **10 September 2021**.
+> **Foundational research:** Matheus Gomes Cordeiro. *Projeto de um Controlador PID-Fuzzy para a Câmara de Burn-in* [*Design of a Fuzzy-PID Controller for a Burn-In Chamber*]. Undergraduate thesis, Computer Engineering, Universidade Federal do Ceará (Federal University of Ceará, UFC), Fortaleza, Brazil, **2021**. Approved on **10 September 2021**.
 >
 > **Author / maintainer:** [Matheus Gomes Cordeiro](https://github.com/fobos123deimos)
 >
-> **Advisor:** **Prof. Dr. José Tarcísio Costa Filho** — [Currículo Lattes (official link listed by UFC)](https://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4785436Z5&metodo=apresentar) · [UFC faculty directory](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/)
+> **Thesis advisor:** **Prof. Dr. José Tarcísio Costa Filho** — [Lattes CV (link provided by UFC)](https://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4785436Z5&metodo=apresentar) · [UFC faculty directory](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/)
 
 ## Navigation
 
@@ -37,6 +39,7 @@ A reproducible, notebook-centered research implementation of **adaptive Fuzzy-PI
 - [Repository layout](#repository-layout)
 - [Research directions and limitations](#research-directions-and-limitations)
 - [References](#references)
+- [Citing this software](#citing-this-software)
 
 ## Project goals
 
@@ -86,7 +89,7 @@ where $\bar K$ is process/sensor steady-state gain, $\bar\tau$ (s) is the time c
 
 $$\boxed{\bar K=7.624,\qquad\bar\tau=151.6\,\mathrm{s},\qquad\theta=8.78\,\mathrm{s}.}\tag{2}$$
 
-| Identified case in TCC | Gain $K$ | Time constant $\tau$ (s) | Dead time $\theta$ (s) |
+| Identified case in the thesis | Gain $K$ | Time constant $\tau$ (s) | Dead time $\theta$ (s) |
 |---|---:|---:|---:|
 | TH37 sensor | 8.7135 | 326.18 | 13.677 |
 | TH34 sensor | 7.7473 | 177.95 | 13.064 |
@@ -119,7 +122,7 @@ $$
 
 For time-varying $K_i$, the discrete implementation uses the current $K_i[k]$ in each integration increment, rather than multiplying the entire accumulated error by a varying $K_i$. Derivative action is **on measurement**, low-pass filtered, to prevent derivative kick and reduce noise amplification. Output saturation with conditional integration provides basic **anti-windup**. This is a documented engineering extension to the thesis's comparison diagram.
 
-The IMC-PID tuning table in the TCC specifies
+The original thesis provides the following IMC-PID tuning rules:
 
 $$\begin{aligned}
 K_p &= \frac{\tau+\theta/2}{K(\lambda+\theta)},\\
@@ -147,7 +150,7 @@ Defuzzification uses **Mean of Maxima (M-o-M)** on a documented 201-point grid, 
 $$\boxed{z^*=\frac{1}{|\mathcal M|}\sum_{z\in\mathcal M}z,\quad
 \mathcal M=\arg\max_{z\in\{0,0.005,\ldots,1\}}\mu_{\rm agg}(z)}.\tag{9}$$
 
-Finally (Eq. 2.14 in the TCC), normalize each scheduled independent PID gain:
+Finally, Eq. 2.14 of the thesis maps each normalized fuzzy output to an independent PID gain:
 
 $$\boxed{K_j=K_{j,\min}+(K_{j,\max}-K_{j,\min})\,K'_j,\quad j\in\{p,i,d\}}.\tag{10}$$
 
@@ -173,10 +176,10 @@ These are *testable hypotheses*, not guaranteed performance improvements.
 
 | Item | Provenance | Where |
 |---|---|---|
-| $K,\tau,\theta$ for TH37, TH34 and two averages | Reported in the 2021 TCC, Section 3.1 | `models.py`, `thesis_parameters.m` |
-| Sparse rule consequents | Transcribed from TCC Figure 15; verified against rendered page | `fuzzy.py`, `fuzzy_rule_matrix.m` |
-| Fuzzy gain bounds | Reported in TCC Table 4 | `controllers.py` |
-| 65 °C target; door events near 2000 and 3000 s | Reported in TCC Section 3.4 | Scenario defaults |
+| $K,\tau,\theta$ for TH37, TH34 and two averages | Reported in the 2021 undergraduate thesis, Section 3.1 | `models.py`, `thesis_parameters.m` |
+| Sparse rule consequents | Transcribed from Figure 15 of the thesis; verified against rendered page | `fuzzy.py`, `fuzzy_rule_matrix.m` |
+| Fuzzy gain bounds | Reported in Table 4 of the thesis | `controllers.py` |
+| 65 °C target; door events near 2000 and 3000 s | Reported in Section 3.4 of the thesis | Scenario defaults |
 | Ambient, actuator scale, door amplitudes, white-noise magnitude | **Assumed**, not measured | `Scenario` and `provenance.json` |
 | TH22 and TH40 individual FOPDT values | **Synthetic assumptions** | `scripts/generate_data.py` |
 | Raw time series, original Simulink files, experimental cross-validation | **Not available** | Not represented as real measurements |
@@ -185,14 +188,14 @@ The provided CSV has deterministic noise seed **2021**. The generated benchmark 
 
 ## Results of the included synthetic benchmark
 
-![Synthetic PID/Fuzzy comparison](images/synthetic_controller_comparison.png)
+![Synthetic Fuzzy-PID comparison](images/synthetic_controller_comparison.png)
 
-The CSV `data/synthetic/benchmark_metrics.csv` is regenerated by the benchmark script. The following are **computed only for the declared synthetic assumptions** and should not be compared numerically with the original TCC's timing percentages:
+The CSV `data/synthetic/benchmark_metrics.csv` is regenerated by the benchmark script. The following are **computed only for the declared synthetic assumptions** and should not be compared numerically with the original undergraduate thesis's timing percentages:
 
 | Controller | 10–90% rise (s) | Time to 60 °C (s) | IAE (°C·s) | Recovery after 2nd door (s) |
 |---|---:|---:|---:|---:|
 | IMC-PID | 135.9 | 123.6 | 6053.6 | 291 |
-| Fuzzy sparse (TCC rules) | 152.0 | 136.7 | 6213.7 | 201 |
+| Thesis Fuzzy-PID (sparse) | 152.0 | 136.7 | 6213.7 | 201 |
 | Fuzzy dense + smoothed | 245.1 | 174.8 | 7114.7 | 231 |
 
 **Interpretation:** under this particular synthetic actuator and disturbance setup, IMC produces lower total absolute error; the sparse fuzzy rules recover faster after the second synthetic disturbance. Completing the table **did not improve tracking** in this initial comparison. That is a useful negative result, supporting further tuning and ablation instead of promotional performance claims. See [Experimental protocol](docs/experimental_protocol.md).
@@ -201,8 +204,8 @@ The CSV `data/synthetic/benchmark_metrics.csv` is regenerated by the benchmark s
 
 ```bash
 # Python 3.10+
-git clone https://github.com/fobos123deimos/Fuzzy-Burn-in.git
-cd Fuzzy-Burn-in
+git clone https://github.com/fobos123deimos/Fuzzy-Burn-in.git thermofuzzy-pid
+cd thermofuzzy-pid
 python -m pip install -e '.[notebook,test]'
 python -m pytest -q
 python scripts/generate_data.py
@@ -235,9 +238,10 @@ The generator creates `burnin_imc.slx` and `burnin_fuzzy_dense.slx` with explici
 ## Repository layout
 
 ```text
-burn-in-pid-fuzzy/
+thermofuzzy-pid/
 ├── .github/workflows/tests.yml        # GitHub Actions CI
 ├── README.md                          # Source, math, runs, provenance
+├── CITATION.cff                       # Citation metadata for research use
 ├── LICENSE                            # BSD-3-Clause
 ├── pyproject.toml                     # Installable scientific Python package
 ├── src/burnin_pid_fuzzy/
@@ -261,18 +265,22 @@ burn-in-pid-fuzzy/
 
 ## Research directions and limitations
 
-The TCC suggests extending the fuzzy inputs to the **second derivative of error**, refining the rule base and comparing intelligent optimizers. Good next experiments include: a three-input rule system, constraints on rule smoothness, GA/PSO/evolutionary optimization with fair time budgets, sensor fusion across all four positions, realistic time-varying heat losses, actuator power measurements and held-out real chamber datasets.
+The undergraduate thesis suggests extending the fuzzy inputs to the **second derivative of error**, refining the rule base and comparing intelligent optimizers. Good next experiments include: a three-input rule system, constraints on rule smoothness, GA/PSO/evolutionary optimization with fair time budgets, sensor fusion across all four positions, realistic time-varying heat losses, actuator power measurements and held-out real chamber datasets.
 
 **Important:** The thermal plant is **single-zone** and not sufficient for operator safety or production burn-in validation. Running the controllers on physical equipment requires independent safety supervision, certified heater interlocks, sensor redundancy and thermal operating limits. No claims about energy savings, reliability qualification or guaranteed stability are made.
 
 ## References
 
-1. Cordeiro, M. G. (2021). *Projeto de um Controlador PID-Fuzzy para a Câmara de Burn-in*. Undergraduate thesis, Universidade Federal do Ceará. **Source consulted privately; the PDF is intentionally not hosted here.**
-2. Ogata, K. (2011). *Engenharia de controle moderno*. Pearson.
-3. Simões, M. G., & Shaw, I. S. (2007). *Controle e modelagem fuzzy*. Edgard Blücher.
-4. Shahrokhi, M., & Zomorrodi, A. R. (2012). *Comparison of PID Controller Tuning Methods* (cited in the source TCC).
+1. Cordeiro, M. G. (2021). *Projeto de um Controlador PID-Fuzzy para a Câmara de Burn-in* [*Design of a Fuzzy-PID Controller for a Burn-In Chamber*]. Undergraduate thesis, Universidade Federal do Ceará. **Source consulted privately; the PDF is intentionally not hosted here.**
+2. Ogata, K. (2011). *Engenharia de controle moderno* [*Modern Control Engineering*]. Pearson.
+3. Simões, M. G., & Shaw, I. S. (2007). *Controle e modelagem fuzzy* [*Fuzzy Control and Modeling*]. Edgard Blücher.
+4. Shahrokhi, M., & Zomorrodi, A. R. (2012). *Comparison of PID Controller Tuning Methods* (cited in the source undergraduate thesis).
 5. MathWorks. [Programmatically editing Simulink models](https://www.mathworks.com/help/simulink/programmatic-modeling.html); [MATLAB Function block API](https://www.mathworks.com/help/simulink/slref/stateflow.emchart.html).
-6. UFC, Departamento de Engenharia de Teleinformática. [Official faculty directory and advisor Lattes link](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/).
+6. UFC, Department of Teleinformatics Engineering. [Official faculty directory and advisor Lattes link](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/).
+
+## Citing this software
+
+Use the repository's [citation metadata](CITATION.cff) when referencing the **ThermoFuzzy-PID** software. Cite the 2021 undergraduate thesis separately when discussing its reported model parameters, fuzzy rules, or historical experimental results. Software extensions, synthetic experiments, and preliminary performance figures should **not** be attributed to the original thesis.
 
 ## License
 
