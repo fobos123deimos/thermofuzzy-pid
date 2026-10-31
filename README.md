@@ -29,6 +29,7 @@
 
 - [Project goals](#project-goals)
 - [Google Colab notebooks](#google-colab-notebooks)
+- [Theoretical source review](#theoretical-source-review)
 - [Physical model](#physical-model)
 - [PID and IMC tuning](#pid-and-imc-tuning)
 - [Adaptive Mamdani fuzzy gains](#adaptive-mamdani-fuzzy-gains)
@@ -48,6 +49,7 @@
 3. **Python + MATLAB:** provide independent implementations and documented input/output conventions.
 4. **Simulink:** generate `.slx` closed-loop models programmatically (requires local MATLAB/Simulink).
 5. **Research extensions:** interpolate deliberately omitted rules, smooth gains, use derivative filtering/anti-windup, test uncertainty and tune hybrid fuzzy/IMC gains.
+6. **Theory-based extensions:** identify a constrained ARX model, compare conditional vs. back-calculation anti-windup, and estimate frequency-domain robustness of *fixed* linear PID loops.
 
 ```mermaid
 flowchart LR
@@ -70,10 +72,23 @@ Each `.ipynb` includes mathematical Markdown, runnable Python, plots and its own
 
 | Notebook | Main workflow | Colab |
 |---|---|---|
-| [01 — Thermal modeling and identification](notebooks/01_thermal_model_identification.ipynb) | FOPDT transfer function, deterministic four-sensor synthetic data, least-squares identification and validation plot | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/01_thermal_model_identification.ipynb) |
-| [02 — Fuzzy rules and benchmark](notebooks/02_fuzzy_pid_and_benchmark.ipynb) | Mamdani M-o-M inference, sparse/dense rule surfaces, PI(D)/IMC comparison and metrics | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/02_fuzzy_pid_and_benchmark.ipynb) |
-| [03 — Uncertainty and robustness](notebooks/03_uncertainty_and_robustness.ipynb) | Paired Monte Carlo tests under uncertain gains, time constants, delays, noise and disturbances | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/03_uncertainty_and_robustness.ipynb) |
-| [04 — Fuzzy optimization](notebooks/04_fuzzy_optimization.ipynb) | Differential evolution of smoothing/mixing factors, held-out synthetic evaluation and ablation | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/04_fuzzy_optimization.ipynb) |
+| [01 — Thermal modeling and identification](notebooks/01_thermal_model_identification.ipynb) | FOPDT transfer function, deterministic four-sensor synthetic data, least-squares identification and validation plot | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/thermofuzzy-pid/blob/main/notebooks/01_thermal_model_identification.ipynb) |
+| [02 — Fuzzy rules and benchmark](notebooks/02_fuzzy_pid_and_benchmark.ipynb) | Mamdani M-o-M inference, sparse/dense rule surfaces, PI(D)/IMC comparison and metrics | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/thermofuzzy-pid/blob/main/notebooks/02_fuzzy_pid_and_benchmark.ipynb) |
+| [03 — Uncertainty and robustness](notebooks/03_uncertainty_and_robustness.ipynb) | Paired Monte Carlo tests under uncertain gains, time constants, delays, noise and disturbances | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/thermofuzzy-pid/blob/main/notebooks/03_uncertainty_and_robustness.ipynb) |
+| [04 — Fuzzy optimization](notebooks/04_fuzzy_optimization.ipynb) | Differential evolution of smoothing/mixing factors, held-out synthetic evaluation and ablation | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/thermofuzzy-pid/blob/main/notebooks/04_fuzzy_optimization.ipynb) |
+| [05 — Theory: ARX, anti-windup, robustness](notebooks/05_theory_arx_antiwindup_robustness.ipynb) | Source-grounded ARX least squares, back-calculation vs. conditional integration, and $M_s$/gain/phase margins for **fixed linear** PID | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fobos123deimos/thermofuzzy-pid/blob/main/notebooks/05_theory_arx_antiwindup_robustness.ipynb) |
+
+## Theoretical source review
+
+In addition to the 2021 thesis, the theoretical background was **audited against the author's connected research materials**: two preliminary PI/PID reports, ARX/system-identification lecture notes, an editable copy of the sparse fuzzy rule matrix, and a thermal-reliability dissertation found in Google Drive; plus the **PET Engenharia Elétrica UFC MATLAB 8.1 guide** and a numerical-methods course found in Dropbox. **None of those private PDFs, documents, or source contents has been uploaded to GitHub.**
+
+The audit led to three **separate, tested research/teaching extensions**, with their assumptions documented:
+
+- **ARX identification:** a constrained first-order, known integer-input-delay least-squares fit, plus $\tau=-\Delta t/\ln(a)$ and $K=b/(1-a)$. It is *not* a re-creation of the historical System Identification Toolbox run.
+- **Anti-windup:** the original Drive report describes back-calculation; our existing Python default was conditional integration. Both are now selectable; the numerical tracking time $T_t$ is a new assumption.
+- **Frequency-domain robustness:** numerical gain/phase margins and maximum sensitivity $M_s=\max_{\omega\in\Omega}|1/(1+L(j\omega))|$ for **fixed, unsaturated linear** controllers. These are not stability guarantees for adaptive fuzzy PID.
+
+See [**Theoretical foundations and equations**](docs/theoretical_foundations.md), [**source-by-source audit**](docs/source_audit.md), and [**source traceability**](docs/source_traceability.md), or run [notebook 05](notebooks/05_theory_arx_antiwindup_robustness.ipynb). The final thesis remains the primary authority for its reported parameters and outcomes; earlier drafts have some conflicting numbers and are **not silently used to overwrite the thesis**.
 
 ## Physical model
 
@@ -120,7 +135,7 @@ $$
 \boxed{u_{\rm raw}(t)=K_p(t)e(t)+\int_0^t K_i(\xi)e(\xi)\,d\xi-K_d(t)\frac{d y_f(t)}{dt}},\quad e(t)=r(t)-y(t).\tag{6}
 $$
 
-For time-varying $K_i$, the discrete implementation uses the current $K_i[k]$ in each integration increment, rather than multiplying the entire accumulated error by a varying $K_i$. Derivative action is **on measurement**, low-pass filtered, to prevent derivative kick and reduce noise amplification. Output saturation with conditional integration provides basic **anti-windup**. This is a documented engineering extension to the thesis's comparison diagram.
+For time-varying $K_i$, the discrete implementation uses the current $K_i[k]$ in each integration increment, rather than multiplying the entire accumulated error by a varying $K_i$. Derivative action is **on measurement**, low-pass filtered, to prevent derivative kick and reduce noise amplification. Output saturation offers **two selectable anti-windup strategies**: conditional integration (the backward-compatible default) and back-calculation (an independently implemented option motivated by the earlier PI/PID engineering report). The tracking time for back-calculation is not provided by the historical source. See [theory documentation](docs/theoretical_foundations.md).
 
 The original thesis provides the following IMC-PID tuning rules:
 
@@ -204,7 +219,7 @@ The CSV `data/synthetic/benchmark_metrics.csv` is regenerated by the benchmark s
 
 ```bash
 # Python 3.10+
-git clone https://github.com/fobos123deimos/Fuzzy-Burn-in.git thermofuzzy-pid
+git clone https://github.com/fobos123deimos/thermofuzzy-pid.git thermofuzzy-pid
 cd thermofuzzy-pid
 python -m pip install -e '.[notebook,test]'
 python -m pytest -q
@@ -213,15 +228,23 @@ python scripts/run_benchmark.py
 jupyter lab
 ```
 
-No GPU is required. Unit tests verify membership partitions, source-derived rules, M-o-M output bounds, IMC-to-ISA conversion, simulation determinism and bounded actuator control. GitHub Actions runs the tests for Python 3.10 and 3.12 after the project is pushed.
+No GPU is required. Unit tests verify membership partitions, source-derived rules, M-o-M output bounds, IMC-to-ISA conversion, simulation determinism, bounded actuator control, ARX recovery for a known delay, and the two anti-windup strategies. GitHub Actions runs the tests for Python 3.10 and 3.12 after the project is pushed.
 
 ## Run in MATLAB and Simulink
 
-Standalone MATLAB functions require **MATLAB**, but no fuzzy-specific toolbox:
+Standalone MATLAB simulations use **MATLAB** without a fuzzy-specific toolbox. The separate frequency-domain analysis requires **Control System Toolbox**:
 
 ```matlab
 cd('matlab');
 run_experiments;
+```
+
+Fixed linear frequency-domain analysis requires the MATLAB **Control System Toolbox**:
+
+```matlab
+cd('matlab');
+metrics = assess_fixed_pid_robustness();   % gain margin, phase margin and Ms
+% First-order ARX identification is also available: fit_first_order_arx(u,T,dt,m,Tambient)
 ```
 
 To **generate the Simulink `.slx` models from source**:
@@ -246,19 +269,22 @@ thermofuzzy-pid/
 ├── pyproject.toml                     # Installable scientific Python package
 ├── src/burnin_pid_fuzzy/
 │   ├── fuzzy.py                       # Exact sparse + new dense Mamdani scheduler
-│   ├── controllers.py                 # IMC and adaptive saturated PID
+│   ├── controllers.py                 # IMC, fuzzy, conditional/back-calculation anti-windup
+│   ├── identification.py              # First-order ARX least-squares teaching model
+│   ├── robustness.py                  # Fixed linear feedback frequency analysis
 │   ├── models.py                      # Sensor-delay FOPDT and door scenarios
 │   └── metrics.py                     # IAE, time-to-60, rise and recovery
 ├── notebooks/
 │   ├── 01_thermal_model_identification.ipynb
 │   ├── 02_fuzzy_pid_and_benchmark.ipynb
 │   ├── 03_uncertainty_and_robustness.ipynb
-│   └── 04_fuzzy_optimization.ipynb
-├── matlab/                            # Standalone .m reference implementation
+│   ├── 04_fuzzy_optimization.ipynb
+│   └── 05_theory_arx_antiwindup_robustness.ipynb
+├── matlab/                            # Standalone .m implementation and loop margins
 ├── simulink/                          # MATLAB script generates .slx models
 ├── scripts/                           # Recreate notebooks, CSV and plots
 ├── data/synthetic/                    # Only explicitly synthetic data/results
-├── docs/                              # Traceability and experiment protocol
+├── docs/                              # Traceability, theoretical review and source audit
 ├── images/                            # Generated experiment plot
 └── tests/                             # Python unit tests
 ```
@@ -276,7 +302,10 @@ The undergraduate thesis suggests extending the fuzzy inputs to the **second der
 3. Simões, M. G., & Shaw, I. S. (2007). *Controle e modelagem fuzzy* [*Fuzzy Control and Modeling*]. Edgard Blücher.
 4. Shahrokhi, M., & Zomorrodi, A. R. (2012). *Comparison of PID Controller Tuning Methods* (cited in the source undergraduate thesis).
 5. MathWorks. [Programmatically editing Simulink models](https://www.mathworks.com/help/simulink/programmatic-modeling.html); [MATLAB Function block API](https://www.mathworks.com/help/simulink/slref/stateflow.emchart.html).
-6. UFC, Department of Teleinformatics Engineering. [Official faculty directory and advisor Lattes link](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/).
+6. De Luca, L. V. (2004). *Recomendações para a Implementação de Ensaios de Estresse Térmico Voltados à Confiabilidade de Hardwares Eletrônicos*. Master's dissertation, Universidade Federal de Santa Catarina (UFSC). A copy was reviewed privately in the researcher's Drive; it is not redistributed.
+7. PET Engenharia Elétrica, UFC (2014). *Apostila de MATLAB 8.1*, chapters 14–15. Reviewed in a private Dropbox technical archive; not redistributed.
+8. Research notes reviewed privately: *Relatório Parcial 1 — Controle de Temperatura Média em Câmara de Burn-in* and *Relatório Parcial 2 — Implementação de Algoritmos PI e PID em CLP*. Earlier draft sources; see [audit](docs/source_audit.md) for limits.
+9. UFC, Department of Teleinformatics Engineering. [Official faculty directory and advisor Lattes link](https://deti.ufc.br/pt/corpo-docente/professores-efetivos/).
 
 ## Citing this software
 

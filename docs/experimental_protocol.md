@@ -44,3 +44,7 @@ The table is written to `data/synthetic/benchmark_metrics.csv` and the figure to
 ## 5. Limitations and next validation steps
 
 A fair comparison against the thesis requires locating synchronized raw TH22/TH37/TH40/TH34 readings, original heater drive and disturbance magnitudes, full MF vertex coordinates, unknown actuator saturation settings, sample time and original Simulink models. Only then can the original reported fit percentages, MSE, 22% and 3% comparisons be independently reproduced. Deeper research should assess overshoot under model mismatch, robust stability, spatial nonuniformity and actuator energy.
+
+## Additional theory-driven experiments (post-thesis extension)
+
+The optional back-calculation anti-windup mode, known-integer-delay ARX estimator, and fixed-linear frequency-domain margin estimator were added after reviewing the researcher's archived theoretical sources. **These additions do not retroactively modify the originally published benchmark table**: its controller configurations and synthetic assumptions remain unchanged. Notebook 05 demonstrates the new routines independently, without reusing measured chamber data or claiming physical validation. See [theoretical foundations](theoretical_foundations.md).

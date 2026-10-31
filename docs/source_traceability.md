@@ -1,5 +1,7 @@
 # Source traceability and decisions
 
+For the additional theory-based Drive/Dropbox review, consult [Theoretical foundations](theoretical_foundations.md) and [Source audit](source_audit.md). No PDF or private Drive/Dropbox material is included in the public repository.
+
 **Private source reviewed:** Matheus Gomes Cordeiro, *Projeto de um Controlador PID-Fuzzy para a Câmara de Burn-in* (UFC, 2021). The user's source PDF is not in this repository.
 
 ## Mapping
@@ -41,3 +43,18 @@ Professor Dr. **José Tarcísio Costa Filho**, named as undergraduate thesis sup
 - [Lattes (UFC-listed official link)](https://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4785436Z5&metodo=apresentar)
 
 The Lattes system may require a visual security code. This repository does not mirror private curriculum data.
+
+
+## Additional archive-derived foundations (theory only)
+
+| Privately reviewed material | Verified topic | Current implementation |
+|---|---|---|
+| Google Drive: *Relatório Parcial 1 — Controle de Temperatura Média em Câmara de Burn-in* | Experimental identification, ARX, first-order models, IMC | `identification.py`: new transparent ARX(1,1,delay) teaching formulation; not the original source data |
+| Google Drive: *Relatório Parcial 2 — Implementação de Algoritmos PI e PID em CLP* | Explicit back-calculation anti-windup and GM/PM/$M_s$ concepts | `controllers.py`: optional back-calculation and `robustness.py`: fixed linear loop analysis |
+| Google Drive: *Modelos de Processos e de Perturbação* and two identification slide sets | Regressor design and least-squares parameter fitting | `identification.py`, notebook 05 |
+| Google Drive: editable *Tabela Verdade* | Linguistic-rule evidence and missing columns | Original sparse table retained, ambiguous repeated gain-label highlighted in theory docs |
+| Google Drive: De Luca (2004), UFSC master's dissertation | Thermal stress, chamber spatial profiling, measurement uncertainty | New theoretical warning: mean temperature control is not a uniformity certificate |
+| Dropbox: PET Engenharia Elétrica UFC, *Apostila de MATLAB 8.1*, chs. 14–15 | Transfer functions, Bode/margin and Simulink blocks | `matlab/assess_fixed_pid_robustness.m` (not MATLAB-runtime-tested) |
+| Dropbox: UERJ *Curso de MATLAB 5.1*, 2nd ed. | Numerical modeling, least squares and ODE methods | Supplemental study reference, not a direct code source |
+
+**Source hierarchy:** the 2021 thesis remains authoritative for its reported models and quantitative claims. Earlier drafts, extracted formulas and independently chosen numerical algorithms are not silently merged into the thesis record. The 2004 De Luca study is a master's dissertation according to its own title page (the thesis bibliography labels it differently). No privately sourced PDF is versioned in Git.

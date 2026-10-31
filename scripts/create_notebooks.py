@@ -6,7 +6,7 @@ from pathlib import Path
 import nbformat as nbf
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "https://colab.research.google.com/github/fobos123deimos/Fuzzy-Burn-in/blob/main/notebooks/"
+BASE = "https://colab.research.google.com/github/fobos123deimos/thermofuzzy-pid/blob/main/notebooks/"
 
 
 def make(name, title, intro, cells):
@@ -20,7 +20,7 @@ local_src = next((p for p in candidates if (p / "burnin_pid_fuzzy").exists()), N
 if local_src is not None:
     sys.path.insert(0, str(local_src.resolve()))
 else:
-    subprocess.check_call([sys.executable, "-m", "pip", "-q", "install", "git+https://github.com/fobos123deimos/Fuzzy-Burn-in.git"])
+    subprocess.check_call([sys.executable, "-m", "pip", "-q", "install", "git+https://github.com/fobos123deimos/thermofuzzy-pid.git"])
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
