@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+.env
+*.egg-info/
+dist/
+build/
+*.asv/
+*.slxc
+*.autosave
+*~
+.DS_Store
+# The user's original TCC is deliberately excluded from GitHub.
+TCC.pdf
+*.pdf
