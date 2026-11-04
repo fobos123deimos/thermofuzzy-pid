@@ -3,6 +3,12 @@
 This evaluates the *linear, unsaturated, fixed-gain* feedback model only.
 It is not a stability certificate for gain-scheduled fuzzy PID or nonlinear
 hardware with saturated actuators; margins depend on frequency grid coverage.
+
+![Fixed-loop gain and sensitivity](../assets/fixed-loop-response.png)
+
+The chart evaluates the nominal source-parameter plant and fixed IMC gains.
+It displays the sampled range used to estimate margins, not a global nonlinear
+stability certificate. Adaptive gains and actuator clipping are absent here.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -13,6 +19,12 @@ from .models import Plant
 
 @dataclass(frozen=True)
 class RobustnessMargins:
+    """Grid-dependent fixed-loop sensitivity and approximate first margins.
+
+    `maximum_sensitivity` and `gain_margin` are ratios, phase margin is in
+    degrees, and peak frequency is rad/s. Infinite gain/phase margin means no
+    crossing was detected on the sampled grid, not proof of infinite margin.
+    """
     maximum_sensitivity: float
     gain_margin: float  # ratio, not dB; inf = no crossing on sampled grid
     phase_margin_deg: float  # inf = no crossing on sampled grid
@@ -23,7 +35,13 @@ def linear_loop_response(
     plant: Plant, gains: PIDGains, omega_rad_s: np.ndarray,
     *, derivative_filter_time_s: float = 8.0,
 ) -> np.ndarray:
-    """L(jω)=G(jω)[Kp+Ki/(jω)+Kd*jω/(1+jω*Tf)] with exact FOPDT delay."""
+    """Return complex loop response on a positive finite rad/s frequency array.
+
+    Evaluate `G(jω)[Kp+Ki/(jω)+Kd*jω/(1+jω*Tf)]` with exact FOPDT
+    delay. Output has the same one-dimensional shape as `omega_rad_s`.
+    `derivative_filter_time_s` is positive seconds. This is the continuous
+    unsaturated fixed-gain model, not the discrete sampled PID implementation.
+    """
     omega = np.asarray(omega_rad_s, dtype=float)
     if omega.ndim != 1 or len(omega) < 2 or not np.all(np.isfinite(omega)) or np.any(omega <= 0):
         raise ValueError("frequencies must be a 1D array of strictly positive finite values")

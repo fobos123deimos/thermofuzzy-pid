@@ -1,4 +1,13 @@
-"""Fixed IMC PID and fuzzy-adaptive PID with derivative filtering/anti-windup."""
+"""Fixed IMC PID and fuzzy-adaptive PID with derivative filtering/anti-windup.
+
+![Matched synthetic controller comparison](../assets/synthetic_controller_comparison.png)
+
+The saved benchmark plot compares declared synthetic conditions. Completing
+the fuzzy rules does not automatically improve tracking; see the returned
+metrics and the [experimental protocol](https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/experimental_protocol.md).
+Use a fresh controller object for each trajectory: its integral, derivative
+filter, error history and fuzzy scheduling state persist between steps.
+"""
 from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
@@ -7,12 +16,22 @@ from .fuzzy import FuzzyRuleBase, infer_normalized_gains
 
 @dataclass(frozen=True)
 class PIDGains:
+    """Parallel gains `(kp, ki, kd)` with actuator/measurement units.
+
+    For Celsius input error and effective heater output, units are heater/°C,
+    heater/(°C s) and heater s/°C respectively. `ki` and `kd` are gains, not
+    the ISA integral/derivative time constants.
+    """
     kp: float
     ki: float  # Parallel/independent gain, 1/s.
     kd: float  # Parallel/independent derivative gain, s.
 
     @classmethod
     def from_isa(cls, kp: float, ti: float, td: float) -> "PIDGains":
+        """Convert ISA parameters to parallel gains; `ti` and `td` are seconds.
+
+        Return `(kp, kp/ti, kp*td)` and reject `ti <= 0`.
+        """
         if ti <= 0:
             raise ValueError("Ti must be > 0")
         return cls(kp=kp, ki=kp / ti, kd=kp * td)
@@ -34,7 +53,14 @@ def imc_pid_gains(K: float = 7.624, tau: float = 151.6,
 
 
 class FixedPID:
-    """Discrete PI(D), derivative on measurement, with configurable anti-windup."""
+    """Stateful discrete PI(D) with filtered derivative on measurement.
+
+    `dt` and `derivative_filter` are seconds; `u_min` and `u_max` are actuator
+    units. Choose `conditional` integration or `back_calculation`; the latter
+    uses `tracking_time >= dt` seconds (default max of 10 s and `dt`). This
+    tracking time is an implementation assumption, not a thesis parameter.
+    The integral starts at zero and the first derivative sample is zero.
+    """
     def __init__(self, gains: PIDGains, dt: float = 1., u_min: float = 0.,
                  u_max: float = 10., derivative_filter: float = 8.,
                  anti_windup: str = "conditional", tracking_time: float | None = None):
@@ -87,6 +113,11 @@ class FixedPID:
         return output
 
     def step(self, setpoint: float, measurement: float) -> tuple[float, PIDGains]:
+        """Advance one sample and return saturated output and fixed gains.
+
+        Setpoint and measurement use the same temperature scale. Integral,
+        filtered derivative and error/measurement histories change in place.
+        """
         return self._calculate(setpoint, measurement, self.gains), self.gains
 
 
@@ -115,6 +146,13 @@ class FuzzyPID(FixedPID):
         self.normalized = np.full(3, .5)
 
     def step(self, setpoint: float, measurement: float) -> tuple[float, PIDGains]:
+        """Schedule gains, advance PID state and return output and new gains.
+
+        Error change is a per-sample difference, not a time derivative. Sparse
+        inactive consequents retain their previous normalized value, initially
+        0.5. Smoothing and optional IMC blending precede the inherited bounded
+        PID calculation. `blend_imc=1` uses only the fuzzy gains.
+        """
         error = float(setpoint - measurement)
         de = 0. if self.previous_error is None else error - self.previous_error
         normalized = infer_normalized_gains(error, de,

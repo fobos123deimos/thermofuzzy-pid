@@ -20,6 +20,13 @@ import numpy as np
 
 @dataclass(frozen=True)
 class ARXEstimate:
+    """First-order fitted coefficients and in-sample residual summary.
+
+    `a` is dimensionless, `b` is Celsius per input unit, `delay_samples` is an
+    integer input delay and `sample_period_s` is seconds. `rmse_c` is the
+    one-step residual RMSE on the fitted rows; it is not held-out free-run
+    accuracy. Continuous mappings assume `0 < a < 1` and positive `b`.
+    """
     a: float
     b: float
     delay_samples: int
@@ -30,14 +37,17 @@ class ARXEstimate:
 
     @property
     def tau_s(self) -> float:
+        """Equivalent positive first-order time constant in seconds."""
         return float(-self.sample_period_s / np.log(self.a))
 
     @property
     def steady_state_gain(self) -> float:
+        """Equivalent continuous steady-state gain in Celsius per input unit."""
         return float(self.b / (1. - self.a))
 
     @property
     def dead_time_s(self) -> float:
+        """Known integer input delay converted to seconds."""
         return self.delay_samples * self.sample_period_s
 
 
@@ -54,6 +64,12 @@ def fit_first_order_arx(
     Inputs are equally sampled *at the same timestamps*. For constant inputs,
     the ARX parameters may be unidentifiable: the design matrix must have rank 2.
     No claim is made that the returned estimates match the thesis ARX model.
+
+    `input_u` and `temperature_c` are equal-length finite one-dimensional
+    arrays; `dt` is seconds. The fixed ambient is subtracted before fitting.
+    Return `ARXEstimate`, rejecting rank deficiency and coefficients outside
+    the stable, positive-gain first-order family. Delay is supplied, not
+    estimated. Split trajectories before fitting and score independent data.
     """
     u = np.asarray(input_u, dtype=float)
     temperature = np.asarray(temperature_c, dtype=float)
@@ -90,6 +106,11 @@ def simulate_sampled_arx(
 
     This educational generator is not raw burn-in-chamber measurement data.
     An implicit zero heater input is assumed for indices before the first sample.
+
+    Return a Celsius array matching the one-dimensional input shape, starting
+    at `ambient_c`. `tau_s` and `dt` are seconds; `K` is Celsius per input unit.
+    This generator places delay at the input, while `models.simulate` allocates
+    the combined delay to measurement. Do not equate their internal states.
     """
     u = np.asarray(input_u, dtype=float)
     if u.ndim != 1 or not np.all(np.isfinite(u)):

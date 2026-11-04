@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.png binary
+*.pdf binary
+# Keep generator output intact and collapse it in source reviews.
+docs/api/** -whitespace linguist-generated=true
+docs/figures/*.svg -whitespace linguist-generated=true

@@ -4,6 +4,19 @@ The thesis estimated a *combined* model G(s)H(s) = K exp(-theta*s)/(tau*s+1).
 Here the delay is assigned to the sensor path for a physical-temperature state,
 with the same step response for input/output identification. Nonuniform sensor
 fields and door dynamics are not identified and are therefore modeled separately.
+
+![Thermal feedback structure](../assets/thermal-loop.png)
+
+The heater/door channels drive one hypothetical chamber temperature. Sensor
+delay and noise affect the measurement used by the controller, not the thermal
+state. See `simulate` before comparing the state with measured-temperature
+metrics. Door pulses and the allocation of delay are explicit assumptions.
+
+![FOPDT source-parameter step responses](../assets/fopdt-responses.png)
+
+These curves evaluate `fopdt_step_response` for the four source-reported
+parameter sets. They are model predictions for a one-unit input, not recovered
+experimental records. TH22 and TH40 are not independently identified here.
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
@@ -14,6 +27,13 @@ from .controllers import FixedPID, FuzzyPID, imc_pid_gains
 
 @dataclass(frozen=True)
 class Plant:
+    """Positive-gain first-order-plus-dead-time parameter record.
+
+    `K` is degrees Celsius per effective heater unit; `tau` and `delay` are
+    seconds. The provenance string distinguishes source-reported parameters
+    from custom assumptions. Construction rejects nonpositive gain/time
+    constant and negative delay; it does not establish physical calibration.
+    """
     name: str
     K: float
     tau: float
@@ -35,6 +55,12 @@ PLANTS_FROM_THESIS = {
 
 @dataclass(frozen=True)
 class DoorEvent:
+    """Assumed input-equivalent cooling pulse on a half-open time interval.
+
+    `start` and `duration` are seconds; `severity <= 0` uses the same effective
+    heater units as the controller output. Simultaneous events add. These
+    pulses are not an identified door heat-transfer model.
+    """
     start: float
     duration: float
     severity: float  # Negative input-equivalent heater demand, assumed.
@@ -46,6 +72,14 @@ class DoorEvent:
 
 @dataclass(frozen=True)
 class Scenario:
+    """Synthetic simulation settings in seconds, Celsius and heater units.
+
+    The default reference is 65 degrees Celsius from a 30-degree ambient.
+    `measurement_noise_std` is a Celsius standard deviation for independent
+    Gaussian measurement noise. `actuator_max` describes the benchmark and
+    metric convention: `simulate_methods` passes it into fresh controllers;
+    when calling `simulate` directly, set the controller's own output bounds.
+    """
     duration: float = 3750.
     dt: float = 1.
     ambient: float = 30.
@@ -63,6 +97,7 @@ class Scenario:
 
 
 def benchmark_scenario() -> Scenario:
+    """Return the declared 3750-second, two-door-pulse synthetic scenario."""
     return Scenario()
 
 
@@ -72,6 +107,15 @@ def simulate(controller: FixedPID | FuzzyPID, plant: Plant | None = None,
 
     Simulation uses Celsius, seconds and *effective heater units*. All door
     severities, ambient values and actuator limits are illustrative assumptions.
+
+    `controller` is stateful and is advanced in place, without a reset; create
+    a fresh instance for each independent run. Its sample period must match
+    `scenario.dt`. The seed controls independent Gaussian sensor noise.
+    Return equal-length one-dimensional arrays: `time_s`, `temperature_c`
+    (physical state), `measurement_c` (delayed/noisy), `control`, `disturbance`,
+    parallel gains `kp`, `ki`, `kd`, and `reference_c`. Only the controller
+    applies actuator saturation. No hardware or output-temperature protection
+    is implemented by this numerical experiment.
     """
     plant = plant or PLANTS_FROM_THESIS["mean_temperature"]
     scenario = scenario or benchmark_scenario()
@@ -115,7 +159,13 @@ def simulate(controller: FixedPID | FuzzyPID, plant: Plant | None = None,
 
 
 def simulate_methods(plant=None, scenario=None, seed: int = 2021):
-    """Benchmark returns comparable runs with fresh controller state."""
+    """Return three matched synthetic runs with fresh controller state.
+
+    Dictionary keys identify fixed IMC, source-derived sparse Fuzzy-PID and a
+    new dense/smoothed rule variant. Each value follows `simulate`'s array
+    schema. All methods receive the same seed, plant, scenario and actuator
+    bounds. The experiment does not reproduce the thesis timing percentages.
+    """
     scenario = scenario or benchmark_scenario()
     plant = plant or PLANTS_FROM_THESIS["mean_temperature"]
     methods = {
@@ -131,6 +181,13 @@ def simulate_methods(plant=None, scenario=None, seed: int = 2021):
 
 def fopdt_step_response(t: Iterable[float], plant: Plant, amplitude: float = 1.,
                         ambient: float = 30.) -> np.ndarray:
+    """Evaluate the delayed analytical input/output step response in Celsius.
+
+    `t` is a one-dimensional sequence in seconds; output has the same shape.
+    `amplitude` uses effective heater units. The pre-delay response equals
+    `ambient`. This combined process/sensor response is useful for visualizing
+    a parameter set, not for validating the assumed physical delay allocation.
+    """
     t = np.asarray(t, dtype=float)
     active = np.maximum(t - plant.delay, 0.)
     return ambient + plant.K * amplitude * (1. - np.exp(-active / plant.tau))

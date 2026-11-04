@@ -1,0 +1,6 @@
+.course-heading { color: #185a69; font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
+.course-subheading { margin: .5rem 0 .8rem; font-size: .86rem; line-height: 1.45; }
+.course-links { display: grid; gap: .25rem; margin-bottom: 1.25rem; font-size: .84rem; }
+main.pdoc .module-info > h1 { overflow-wrap: anywhere; }
+
+main.pdoc img { max-width: 100%; height: auto; border-radius: .35rem; }

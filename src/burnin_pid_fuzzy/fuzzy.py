@@ -8,6 +8,13 @@ endpoints. Their complete coordinates are not tabulated in the thesis.
 Input error is |r-y|, in [0, 40]; delta error is signed, in [-40, 40].
 This resolves the thesis's ambiguity between its absolute-error description,
 its signed error formula (Eq. 2.13) and its nonnegative e membership domain.
+
+![Input memberships and sparse/dense proportional gain](../assets/fuzzy-scheduling.png)
+
+The upper plots show the assumed membership geometry. The lower plots evaluate
+the proportional normalized output on identical grids with previous gains 0.5.
+The dense table interpolates missing consequents and is a new experiment. The
+labels NB through PB name categories even on the nonnegative magnitude axis.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -32,7 +39,12 @@ EXACT_SPARSE_RULES = [
 
 
 def membership_degrees(x: float, low: float, high: float) -> np.ndarray:
-    """7 overlapping fuzzy sets: trapezoid shoulders and triangular interiors."""
+    """Return seven membership degrees for a scalar on a positive-width domain.
+
+    The scalar is clipped to `[low, high]`; equally spaced centers form
+    triangular interiors and shoulder endpoints. Return shape `(7,)` in
+    `TERMS` order. Callers must supply `high > low`.
+    """
     x = float(np.clip(x, low, high))
     centers = np.linspace(low, high, 7)
     w = centers[1] - centers[0]
@@ -63,6 +75,13 @@ def _dense_rules_from_sparse() -> list[list[tuple[str, str, str]]]:
 
 @dataclass(frozen=True)
 class FuzzyRuleBase:
+    """Select sparse source-derived or dense interpolated gain consequents.
+
+    `output_resolution` samples normalized `[0,1]` for mean-of-maxima
+    defuzzification; at least eleven points are required, with 201 by default.
+    Neither the interpolated rules nor the exact membership breakpoints are
+    claimed as recovered experimental controller settings.
+    """
     mode: str = "sparse"
     output_resolution: int = 201
 
@@ -74,6 +93,12 @@ class FuzzyRuleBase:
 
     @property
     def rules(self):
+        """Return a 7-by-7 table of `(kp, ki, kd)` linguistic consequents.
+
+        Rows are signed delta error and columns are error magnitude. `None`
+        denotes an absent rule or an unspecified output. Treat the returned
+        sparse table as read-only: it is the shared module-level source table.
+        """
         return EXACT_SPARSE_RULES if self.mode == "sparse" else _dense_rules_from_sparse()
 
 
@@ -84,6 +109,12 @@ def infer_normalized_gains(error: float, delta_error: float,
 
     For undefined outputs, the corresponding previous normalized gain is held.
     Rules with absent antecedent combinations contribute zero activation.
+
+    `error` and `delta_error` use Celsius differences; delta error is a sample
+    difference, not degrees per second. The result has shape `(3,)` in
+    proportional/integral/derivative order. `previous` defaults to 0.5 for each
+    channel. Supply normalized previous values in `[0,1]`; the function checks
+    shape and finiteness but does not clip a retained previous value.
     """
     base = rule_base or FuzzyRuleBase()
     previous = np.full(3, 0.5) if previous is None else np.asarray(previous, dtype=float)

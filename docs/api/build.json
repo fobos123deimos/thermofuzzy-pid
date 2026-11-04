@@ -1,0 +1,121 @@
+{
+  "generator": "pdoc",
+  "pdoc_version": "16.0.0",
+  "render_dependencies": {
+    "Jinja2": "3.1.6",
+    "MarkupSafe": "3.0.4",
+    "markdown2": "2.5.5",
+    "Pygments": "2.21.0"
+  },
+  "image_source_sha256": {
+    "docs/figures/fixed-loop-response.png": "76a7037fb76a5128e420ef75c1239dee7b6e96d6539fd82c826ed36a2a1880de",
+    "docs/figures/fopdt-responses.png": "7e4985ad59f226ba91deec7aa324f5d46714f15b42c83c019f6b7b2f9344c353",
+    "docs/figures/fuzzy-scheduling.png": "897ad84182b042e2f314c8f7e46a4d074a023313f1362e62e13443d947aa793c",
+    "docs/figures/thermal-loop.png": "4030e6d7a98c725f5a7cacfc35d7a49e2cc14c62f3a4d848b4cecc13f32ff304",
+    "images/synthetic_controller_comparison.png": "117d736881dbdcf22b66873cea00a62404136e816c1057831da27a67c6657b54"
+  },
+  "source_sha256_lf": {
+    "src/burnin_pid_fuzzy/__init__.py": "c9a58d33c191f91ccc13d71e29eccf1819cb03668f2a58b0eca0ccfe9b610626",
+    "src/burnin_pid_fuzzy/controllers.py": "c7761bb9b997a9cdafb06a34f33c74111736a285fae9f874de5f58c05821bd7f",
+    "src/burnin_pid_fuzzy/fuzzy.py": "ba767855acabb728f0cf4bf0eaed0426828c21ea63a42b8fdaae1878e4b8f8b3",
+    "src/burnin_pid_fuzzy/identification.py": "dd85375ffa077e93f7e94feca41f75041690673f568ccf68e34aaf6b71df5afc",
+    "src/burnin_pid_fuzzy/metrics.py": "a1e9059e247aa523d94d2f46f2b94902982a5bb02a8e33ba9418107de32eb46d",
+    "src/burnin_pid_fuzzy/models.py": "e0fd110b1b691a9003d61e475521f3f0b9b7be75a99e3423248d13d54a2769cc",
+    "src/burnin_pid_fuzzy/robustness.py": "c5c8336796e6d7e53c927be91b6c50a401e1ba8c939dad010e415432df92dfb1",
+    "docs/pdoc-template/custom.css": "bccc1e32d0068505f245104e4b4f538ddcf587d011785b2e0010acdc143b5078",
+    "docs/pdoc-template/module.html.jinja2": "a403ed9637b1551483cfbfcc3599d5f5edbfd01b2064723dcfecd8307df3fddc",
+    "tools/build_api_docs.py": "ab1e27ed0e2000a65ee819f0fb029ab8f296db11b67c3d8da6b224a2e6dbaa3d",
+    "requirements-docs.txt": "14049bf5f2c32f45c8f732ddc5d1b808976c3f70291dc051e699ff75ac57c33b",
+    "pyproject.toml": "1af94a17706f0e03c0d0b1f7ad0ba0cd481b7da9dad6f429b196e4bdec78ddc9",
+    "scripts/build_documentation_figures.py": "fc2875879461f73aa59f1c9c0d859809675c84f893da1d4a18ea1e78f7d6ca4d"
+  },
+  "artifact_sha256": {
+    ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "assets/fixed-loop-response.png": "76a7037fb76a5128e420ef75c1239dee7b6e96d6539fd82c826ed36a2a1880de",
+    "assets/fopdt-responses.png": "7e4985ad59f226ba91deec7aa324f5d46714f15b42c83c019f6b7b2f9344c353",
+    "assets/fuzzy-scheduling.png": "897ad84182b042e2f314c8f7e46a4d074a023313f1362e62e13443d947aa793c",
+    "assets/synthetic_controller_comparison.png": "117d736881dbdcf22b66873cea00a62404136e816c1057831da27a67c6657b54",
+    "assets/thermal-loop.png": "4030e6d7a98c725f5a7cacfc35d7a49e2cc14c62f3a4d848b4cecc13f32ff304",
+    "burnin_pid_fuzzy/controllers.html": "babf63b796f6fe1eec8a11fd6824a7ade8c08500ad1e0e45ab5ee21d630dc17f",
+    "burnin_pid_fuzzy/fuzzy.html": "456803b0ec76d9d7a8bb5f050ff1d8bda9726250219bbc33f93a2dec8118a66f",
+    "burnin_pid_fuzzy/identification.html": "72d1037b7c43453ee45797cbed338c99f1376dcc1b53a412ea7be15789f3c698",
+    "burnin_pid_fuzzy/metrics.html": "427b3a612640d17a20bea5fabd2a4cd060a46a6ff15decec698f022acb115db7",
+    "burnin_pid_fuzzy/models.html": "349083b7204f90e056525befaceb2db8f5a50f8847754667ce0eb586fd4026a4",
+    "burnin_pid_fuzzy/robustness.html": "087891c76381634e6dd9124fcd3c62bb7d45483b738a24f04b6e7a34194afe21",
+    "burnin_pid_fuzzy.html": "ca23a43498b6a1f311765dea390642638ad95b16ba1fefd1cf893b2a359f70b9",
+    "index.html": "4f4dda5b140465c63f3840189086093b3a6f88d05a8c998bfae9ca2e5041f67d",
+    "search.js": "884e9e0470f11f3262556c2900a85da31564250e0ff757afc09dcd5e49d589e3"
+  },
+  "coverage": {
+    "burnin_pid_fuzzy": {
+      "source": "src/burnin_pid_fuzzy/__init__.py",
+      "public_definitions": []
+    },
+    "burnin_pid_fuzzy.controllers": {
+      "source": "src/burnin_pid_fuzzy/controllers.py",
+      "public_definitions": [
+        "PIDGains",
+        "PIDGains.from_isa",
+        "imc_pid_gains",
+        "FixedPID",
+        "FixedPID.step",
+        "FuzzyPID",
+        "FuzzyPID.step"
+      ]
+    },
+    "burnin_pid_fuzzy.fuzzy": {
+      "source": "src/burnin_pid_fuzzy/fuzzy.py",
+      "public_definitions": [
+        "membership_degrees",
+        "FuzzyRuleBase",
+        "FuzzyRuleBase.rules",
+        "infer_normalized_gains"
+      ]
+    },
+    "burnin_pid_fuzzy.identification": {
+      "source": "src/burnin_pid_fuzzy/identification.py",
+      "public_definitions": [
+        "ARXEstimate",
+        "ARXEstimate.tau_s",
+        "ARXEstimate.steady_state_gain",
+        "ARXEstimate.dead_time_s",
+        "fit_first_order_arx",
+        "simulate_sampled_arx"
+      ]
+    },
+    "burnin_pid_fuzzy.metrics": {
+      "source": "src/burnin_pid_fuzzy/metrics.py",
+      "public_definitions": [
+        "evaluate"
+      ]
+    },
+    "burnin_pid_fuzzy.models": {
+      "source": "src/burnin_pid_fuzzy/models.py",
+      "public_definitions": [
+        "Plant",
+        "DoorEvent",
+        "Scenario",
+        "benchmark_scenario",
+        "simulate",
+        "simulate_methods",
+        "fopdt_step_response"
+      ]
+    },
+    "burnin_pid_fuzzy.robustness": {
+      "source": "src/burnin_pid_fuzzy/robustness.py",
+      "public_definitions": [
+        "RobustnessMargins",
+        "linear_loop_response",
+        "assess_fixed_pid_robustness"
+      ]
+    }
+  },
+  "validation": {
+    "html_pages": 8,
+    "modules": 7,
+    "public_definitions": 28,
+    "local_links_checked": 2783,
+    "illustration_files": 5,
+    "status": "passed"
+  }
+}

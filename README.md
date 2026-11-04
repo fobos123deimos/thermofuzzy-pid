@@ -27,6 +27,7 @@
 
 ## Navigation
 
+- [Illustrated Python API (pdoc)](https://fobos123deimos.github.io/thermofuzzy-pid/) · [Versioned HTML](docs/api/index.html) · [Build and maintenance](docs/API_DOCUMENTATION.md)
 - [Project goals](#project-goals)
 - [Google Colab notebooks](#google-colab-notebooks)
 - [Theoretical source review](#theoretical-source-review)
@@ -91,6 +92,10 @@ The audit led to three **separate, tested research/teaching extensions**, with t
 See [**Theoretical foundations and equations**](docs/theoretical_foundations.md), [**source-by-source audit**](docs/source_audit.md), and [**source traceability**](docs/source_traceability.md), or run [notebook 05](notebooks/05_theory_arx_antiwindup_robustness.ipynb). The final thesis remains the primary authority for its reported parameters and outcomes; earlier drafts have some conflicting numbers and are **not silently used to overwrite the thesis**.
 
 ## Physical model
+
+![Declared thermal feedback and measurement paths](docs/figures/thermal-loop.png)
+
+The diagram separates the physical-temperature state from its delayed, noisy measurement. Door cooling enters as an assumed input-equivalent disturbance; it is not a calibrated heat-loss channel. The [illustrated API reference](docs/API_DOCUMENTATION.md) connects each signal to the corresponding Python implementation.
 
 ### First-order plus dead time (FOPDT)
 

@@ -18,6 +18,21 @@ def _first_crossing(t, x, threshold):
 
 def evaluate(result: dict[str, np.ndarray], scenario: Scenario | None = None,
              recovery_tolerance_c: float = 2., recovery_hold_s: float = 30.) -> dict[str, float]:
+    """Score measured-temperature tracking under the declared synthetic scenario.
+
+    Read the equal-length `time_s`, `measurement_c` and `control` arrays from
+    `models.simulate`. The scenario must match the simulation. Rise time and
+    overshoot use samples before the first door event; IAE uses the whole
+    record and a rectangular sum with median sample interval. Time to 60 °C
+    is a fixed diagnostic, independent of the requested reference.
+
+    Return seconds, Celsius overshoot, Celsius-seconds IAE, actuator total
+    variation and saturation fraction. Each door recovery starts at closure
+    and requires `recovery_hold_s` consecutive seconds inside the specified
+    Celsius band before the next event. Unreached thresholds return NaN.
+    Assumes an increasing regular time grid with at least two samples and a
+    nonempty pre-door interval; it does not validate an arbitrary trace schema.
+    """
     scenario = scenario or Scenario()
     t, y, u = result["time_s"], result["measurement_c"], result["control"]
     r = float(scenario.reference)

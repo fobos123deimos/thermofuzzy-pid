@@ -1,0 +1,20 @@
+{% extends "default/module.html.jinja2" %}
+{% block nav_title %}
+    <div class="course-heading">ThermoFuzzy-PID</div>
+    <div class="course-subheading">Thermal control for burn-in chambers<br>Illustrated Python API</div>
+    <div class="course-links">
+        <a href="https://github.com/fobos123deimos/thermofuzzy-pid">Project &amp; notebooks</a>
+        <a href="https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/source_traceability.md">Source traceability</a>
+        <a href="https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/experimental_protocol.md">Experimental protocol</a>
+        <a href="https://github.com/fobos123deimos/thermofuzzy-pid/tree/main/matlab">MATLAB</a>
+        <a href="https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/simulink/README.md">Simulink</a>
+    </div>
+{% endblock %}
+{% block nav_submodules %}
+    <h2>Modules</h2>
+    <ul>
+    {% for name in ["models", "controllers", "fuzzy", "identification", "metrics", "robustness"] %}
+        <li><a href="{{ '../' * module.modulename.count('.') }}burnin_pid_fuzzy/{{ name }}.html">{{ name }}</a></li>
+    {% endfor %}
+    </ul>
+{% endblock %}

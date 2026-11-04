@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-04",
+  "baseline_commit": "29374ee05b66494c95204ed91e38ee5105877a9d",
+  "scope": "Illustrated Python API documentation; publication is verified separately by the deployment workflow.",
+  "generator": "pdoc 16.0.0",
+  "python_source_files": 7,
+  "executable_ast_unchanged": true,
+  "ast_comparison": "Module, class and function docstrings removed before comparing syntax trees with baseline commit.",
+  "python_tests": {"passed": 18, "failed": 0},
+  "getting_started_example": {"status": "passed", "samples": 3751, "IAE_c_s": 6053.560945552546},
+  "figures": {
+    "new_png_and_svg_pairs": 4,
+    "preserved_benchmark_png": 1,
+    "source": "scripts/build_documentation_figures.py and the existing synthetic benchmark image",
+    "visual_inspection": "All five PNG figures inspected for labels, clipping, scales and scope captions."
+  },
+  "site_inventory": "See api/build.json for current generated files, source/image hashes, local links and public-definition coverage.",
+  "runtime_limits": [
+    "No MATLAB or Simulink execution is claimed by this documentation change.",
+    "Original chamber measurement records remain unavailable.",
+    "The new curves are model predictions, not recovered experimental results.",
+    "The fixed-loop frequency plot does not certify adaptive or saturated-loop stability."
+  ]
+}
