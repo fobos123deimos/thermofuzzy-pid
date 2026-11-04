@@ -1,7 +1,46 @@
 {
   "date": "2026-11-04",
   "baseline_commit": "29374ee05b66494c95204ed91e38ee5105877a9d",
-  "scope": "Illustrated Python API documentation; publication is verified separately by the deployment workflow.",
+  "scope": "Illustrated Python API documentation, passing publication workflow and sampled checks of the public site.",
+  "published_source_commit": "2711d22c870cbfefb5f9e859db95d3fa57ca06b0",
+  "site_url": "https://fobos123deimos.github.io/thermofuzzy-pid/",
+  "publication": {
+    "run_id": 41914672749,
+    "run_url": "https://github.com/fobos123deimos/thermofuzzy-pid/actions/runs/41914672749",
+    "successful_attempt": 2,
+    "conclusion": "success",
+    "updated_at_utc": "2026-11-04T21:33:12Z",
+    "jobs": {"build": 126879578951, "deploy": 126879577923},
+    "committed_documentation_check": "passed",
+    "independent_build_and_check": "passed",
+    "modules": 7,
+    "public_definitions": 28,
+    "html_pages": 8,
+    "local_links_checked": 2783,
+    "illustration_files": 5
+  },
+  "published_source_tests": {
+    "run_id": 41914672854,
+    "run_url": "https://github.com/fobos123deimos/thermofuzzy-pid/actions/runs/41914672854",
+    "conclusion": "success",
+    "jobs": [
+      {"python": "3.10", "job_id": 126871071150, "tests_passed": 18},
+      {"python": "3.12", "job_id": 126871070538, "tests_passed": 18}
+    ],
+    "synthetic_data_generation": "passed on both versions",
+    "benchmark_script": "passed on both versions"
+  },
+  "public_browser_checks": {
+    "date": "2026-11-04",
+    "homepage": "loaded",
+    "thermal_loop_image": "rendered",
+    "introductory_fopdt_equation": "rendered",
+    "getting_started_example": "displayed",
+    "controller_comparison_image": "rendered",
+    "search_query": "FuzzyRuleBase",
+    "search_results": 12,
+    "scope": "Sampled public-page presentation and search; structural build checks cover every generated page."
+  },
   "generator": "pdoc 16.0.0",
   "python_source_files": 7,
   "executable_ast_unchanged": true,
