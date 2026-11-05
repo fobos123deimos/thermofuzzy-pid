@@ -23,6 +23,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / 'src/burnin_pid_fuzzy'
 REPOSITORY = 'https://github.com/fobos123deimos/thermofuzzy-pid'
 ASSETS = sorted((ROOT / 'docs/figures').glob('*.png')) + [ROOT / 'images/synthetic_controller_comparison.png']
+ATLAS_CATALOG = ROOT / 'docs/tikz/catalog.json'
+ATLAS_PDF = ROOT / 'docs/figures/tikz/thermal-control-atlas.pdf'
+ASSETS += sorted((ROOT / 'docs/figures/tikz').glob('*.png')) + [ATLAS_PDF]
 
 
 class Page(HTMLParser):
@@ -106,13 +109,14 @@ def validate_site(output, modules):
         raise ValueError('pdoc search index is missing or empty.')
     return {'html_pages': len(pages), 'modules': len(modules),
             'public_definitions': sum(len(m['public_definitions']) for m in modules.values()),
-            'local_links_checked': checked, 'illustration_files': len(ASSETS), 'status': 'passed'}
+            'local_links_checked': checked, 'illustration_files': sum(p.suffix == '.png' for p in ASSETS), 'atlas_files': 1, 'status': 'passed'}
 
 
 def source_hashes():
     sources = sorted(PACKAGE.glob('*.py')) + sorted((ROOT / 'docs/pdoc-template').glob('*'))
     sources += [ROOT / 'tools/build_api_docs.py', ROOT / 'requirements-docs.txt',
-                ROOT / 'pyproject.toml', ROOT / 'scripts/build_documentation_figures.py']
+                ROOT / 'pyproject.toml', ROOT / 'scripts/build_documentation_figures.py',
+                ATLAS_CATALOG, ROOT / 'tools/build_tikz_atlas.py']
     return {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
             for p in sources if p.is_file()}
 
@@ -151,6 +155,7 @@ def main():
             footer_text='Synthetic thermal experiments; see source traceability and limitations.')
         output.mkdir(parents=True, exist_ok=True)
         (output / 'assets').mkdir(exist_ok=True)
+        pdoc.render.env.globals['atlas_plates'] = json.loads(ATLAS_CATALOG.read_text(encoding='utf-8'))['plates']
         for source in ASSETS:
             shutil.copyfile(source, output / 'assets' / source.name)
         # Only remove obsolete module pages within this generator's own namespace.

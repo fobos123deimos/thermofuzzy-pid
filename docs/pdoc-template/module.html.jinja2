@@ -8,7 +8,23 @@
         <a href="https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/experimental_protocol.md">Experimental protocol</a>
         <a href="https://github.com/fobos123deimos/thermofuzzy-pid/tree/main/matlab">MATLAB</a>
         <a href="https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/simulink/README.md">Simulink</a>
+        <a href="{{ '../' * module.modulename.count('.') }}assets/thermal-control-atlas.pdf">Detailed TikZ atlas (PDF)</a>
+        <a href="https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/DIAGRAMS.md">Diagram gallery &amp; editable sources</a>
     </div>
+{% endblock %}
+{% block module_info %}
+{{ super() }}
+{% set prefix = '../' * module.modulename.count('.') %}
+<section id="detailed-atlas" class="visual-guide" aria-label="Detailed thermal control diagrams">
+  <h2>Detailed thermal-control atlas</h2>
+  <p>Physical interpretation, control semantics and evidence boundaries. <a href="{{ prefix }}assets/thermal-control-atlas.pdf">Download the six-page vector atlas</a>.</p>
+  {% for plate in atlas_plates if module.modulename in plate.modules %}
+  <figure>
+    <a href="{{ prefix }}assets/{{ plate.stem }}.png"><img src="{{ prefix }}assets/{{ plate.stem }}.png" alt="{{ plate.title }}" loading="lazy"></a>
+    <figcaption>{{ plate.caption }} <a href="https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/tikz/{{ plate.stem }}.tex">Editable TikZ source</a>.</figcaption>
+  </figure>
+  {% endfor %}
+</section>
 {% endblock %}
 {% block nav_submodules %}
     <h2>Modules</h2>

@@ -4,6 +4,8 @@
 
 ## 1. Source hierarchy and provenance
 
+Read these equations alongside the [detailed TikZ atlas](DIAGRAMS.md), which illustrates the chamber and model, identification, PID/IMC, exact sparse fuzzy consequents, robustness and optimization. The [complete vector PDF](figures/tikz/thermal-control-atlas.pdf) distinguishes the source register from assumptions and recommended future validation; it does not reproduce private thesis figures.
+
 | Evidence type | Source reviewed | Use in this project |
 |---|---|---|
 | **Primary thesis** | M. G. Cordeiro, *Projeto de um Controlador PID-Fuzzy para a Câmara de Burn-in*, UFC, 2021 | Identified parameter tables, controller comparison, fuzzy rules, gain bounds, simulation description |

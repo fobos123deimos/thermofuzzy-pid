@@ -2,6 +2,8 @@
 
 This repository is an **open engineering study**, not a reconstruction of the source's hardware data. The source was a 2021 thesis; code and illustrative data are newly generated.
 
+The [six-plate visual atlas](DIAGRAMS.md) explains the physical boundary and the implemented protocols. Its [robustness](figures/tikz/05-robustness.pdf) and [optimization](figures/tikz/06-optimization-validation.pdf) plates separate paired synthetic comparisons, fixed return-ratio analysis, training and held-out evaluation. The 1 s configuration below is the baseline; notebook 03 uses 2 s and notebook 04 uses 3 s. The [identification plate](figures/tikz/02-identification.pdf) labels independent validation as a recommendation because notebooks 01/05 report in-sample fit residuals.
+
 ## 1. Define a matched scenario
 
 - Nominal FOPDT source parameters: `(K,tau,theta)=(7.624,151.6 s,8.78 s)`.

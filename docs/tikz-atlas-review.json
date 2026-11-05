@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-05",
+  "baseline_commit": "6db4cd0acd96cd3654442c29e0b8810ee6b3a06c",
+  "scope": "Original explanatory TikZ diagrams and documentation integration; no numerical model changes.",
+  "atlas": {
+    "plates": 6,
+    "vector_pdf_pages": 6,
+    "embedded_raster_images_in_pdf": 0,
+    "png_long_edge": 2800,
+    "artifacts_verified": 13,
+    "sparse_rule_matrices": 3,
+    "exact_rule_cells_checked": 147,
+    "sha256": "e6f62d9b0e534f84ab455a95b6785f8ce17d19b635bf067b9461c72e30a74003"
+  },
+  "visual_review": {
+    "status": "passed",
+    "plates_reviewed": 6,
+    "second_pass": "Scientific semantics and rendered layouts reviewed independently; no unresolved findings."
+  },
+  "preservation": {
+    "status": "passed",
+    "protected_code_data_and_existing_plot_files_identical": 25,
+    "notebook_code_outputs_execution_counts": "identical to baseline",
+    "notebooks": 5,
+    "code_cells": 19,
+    "atlas_markdown_cells": 5
+  },
+  "documentation": {
+    "local_markdown_links_checked": 76,
+    "documents_checked": 5,
+    "html_pages": 8,
+    "modules": 7,
+    "public_definitions": 28,
+    "local_links_checked": 2827,
+    "illustration_files": 11,
+    "atlas_files": 1,
+    "status": "passed"
+  },
+  "checks": [
+    "Full Tectonic compilation and Poppler rendering",
+    "Source and artifact hash verification with standard-library-only atlas --check",
+    "pdoc build and --check",
+    "Five notebook schema validations and comparison to baseline",
+    "No raster images embedded in the six-page vector atlas",
+    "git diff --check"
+  ],
+  "evidence_boundaries": [
+    "Chamber geometry and sensor locations are illustrative.",
+    "Door losses, heater units and delay allocation are declared reconstruction assumptions.",
+    "Notebooks 01/05 report in-sample identification residuals; independent validation is a recommended extension.",
+    "Notebook 04 implements a separate held-out scenario; no new numerical run was performed for the atlas.",
+    "No historical thesis performance claim or physical hardware validation was added."
+  ],
+  "publication": "Generated site ready for GitHub Pages; deployment is recorded separately after the publishing workflow succeeds."
+}

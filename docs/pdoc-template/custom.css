@@ -4,3 +4,6 @@
 main.pdoc .module-info > h1 { overflow-wrap: anywhere; }
 
 main.pdoc img { max-width: 100%; height: auto; border-radius: .35rem; }
+.visual-guide { margin: 1.5rem 0; }
+.visual-guide figure { margin: 1.2rem 0 1.8rem; }
+.visual-guide figcaption { color: #526571; font-size: .9rem; line-height: 1.5; }

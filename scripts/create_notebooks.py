@@ -4,6 +4,7 @@ Notebooks are checked in to the repository. Re-run only to regenerate sources.
 """
 from pathlib import Path
 import nbformat as nbf
+from atlas_notebook_context import atlas_context
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://colab.research.google.com/github/fobos123deimos/thermofuzzy-pid/blob/main/notebooks/"
@@ -32,7 +33,8 @@ from burnin_pid_fuzzy.metrics import evaluate
 np.set_printoptions(precision=4, suppress=True)
 '''
     doc = nbf.v4.new_notebook()
-    doc.cells = [nbf.v4.new_markdown_cell(start), nbf.v4.new_code_cell(setup)]
+    visual = nbf.v4.new_markdown_cell(atlas_context(name)); visual.id = 'detailed-thermal-atlas'
+    doc.cells = [nbf.v4.new_markdown_cell(start), visual, nbf.v4.new_code_cell(setup)]
     for kind, content in cells:
         doc.cells.append(nbf.v4.new_markdown_cell(content) if kind == "md" else nbf.v4.new_code_cell(content))
     doc.metadata = {"kernelspec": {"name": "python3", "language": "python", "display_name": "Python 3"},

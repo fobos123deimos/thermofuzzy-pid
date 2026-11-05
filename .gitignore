@@ -15,3 +15,7 @@ build/
 # The user's original TCC is deliberately excluded from GitHub.
 TCC.pdf
 *.pdf
+# Original vector diagrams are public repository artifacts.
+!docs/figures/tikz/*.pdf
+!docs/api/assets/thermal-control-atlas.pdf
+docs/figures/tikz/*.log

@@ -1,6 +1,7 @@
 """Regenerate 05_theory_arx_antiwindup_robustness.ipynb (source-based tutorial)."""
 from pathlib import Path
 import nbformat as nbf
+from atlas_notebook_context import atlas_context
 
 root = Path(__file__).resolve().parents[1]
 name = '05_theory_arx_antiwindup_robustness.ipynb'
@@ -159,6 +160,8 @@ The original reported **22% faster rise** and **3% faster disturbance recovery**
 ### Source navigation
 
 See [theory and evidence hierarchy](https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/theoretical_foundations.md), [source audit](https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/source_audit.md) and [full provenance table](https://github.com/fobos123deimos/thermofuzzy-pid/blob/main/docs/source_traceability.md). Bibliographic titles of private files are given there; no source PDF has been copied into GitHub.''')
+visual=nbf.v4.new_markdown_cell(atlas_context(name)); visual.id='detailed-thermal-atlas'
+notebook.cells.insert(1,visual)
 notebook.metadata={'kernelspec':{'display_name':'Python 3','language':'python','name':'python3'},
                    'language_info':{'name':'python'},'colab':{'name':name,'provenance':[]}}
 nbf.validate(notebook)

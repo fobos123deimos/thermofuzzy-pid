@@ -27,6 +27,7 @@
 
 ## Navigation
 
+- [Detailed TikZ atlas: chamber, control and validation](docs/DIAGRAMS.md) · [Six-page vector PDF](docs/figures/tikz/thermal-control-atlas.pdf) · [Editable sources](docs/tikz/)
 - [Illustrated Python API (pdoc)](https://fobos123deimos.github.io/thermofuzzy-pid/) · [Versioned HTML](docs/api/index.html) · [Build and maintenance](docs/API_DOCUMENTATION.md)
 - [Project goals](#project-goals)
 - [Google Colab notebooks](#google-colab-notebooks)
@@ -93,7 +94,7 @@ See [**Theoretical foundations and equations**](docs/theoretical_foundations.md)
 
 ## Physical model
 
-![Declared thermal feedback and measurement paths](docs/figures/thermal-loop.png)
+![Detailed chamber interpretation and reduced-model boundary](docs/figures/tikz/01-chamber-model.png)
 
 The diagram separates the physical-temperature state from its delayed, noisy measurement. Door cooling enters as an assumed input-equivalent disturbance; it is not a calibrated heat-loss channel. The [illustrated API reference](docs/API_DOCUMENTATION.md) connects each signal to the corresponding Python implementation.
 

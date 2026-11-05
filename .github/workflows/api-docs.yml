@@ -11,6 +11,8 @@ on:
       - 'requirements*.txt'
       - 'pyproject.toml'
       - 'docs/figures/**'
+      - 'docs/tikz/**'
+      - 'tools/build_tikz_atlas.py'
       - 'images/**'
       - '.github/workflows/api-docs.yml'
   pull_request:
@@ -23,6 +25,8 @@ on:
       - 'requirements*.txt'
       - 'pyproject.toml'
       - 'docs/figures/**'
+      - 'docs/tikz/**'
+      - 'tools/build_tikz_atlas.py'
       - 'images/**'
       - '.github/workflows/api-docs.yml'
   workflow_dispatch:
@@ -48,7 +52,9 @@ jobs:
             requirements-docs.txt
       - run: python -m pip install -r requirements-docs.txt
       - name: Check committed API documentation
-        run: python tools/build_api_docs.py --check
+        run: |
+          python tools/build_tikz_atlas.py --check
+          python tools/build_api_docs.py --check
       - run: python tools/build_api_docs.py --output build/api
       - run: python tools/build_api_docs.py --output build/api --check
       - uses: actions/upload-pages-artifact@v4

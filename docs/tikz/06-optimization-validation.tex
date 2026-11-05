@@ -1,0 +1,35 @@
+\documentclass[tikz,border=6pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\atlasheader{Optimization: tune on training scenarios, freeze, then evaluate}{06 / Dense fuzzy gains, smoothing, model-assisted blending and reproducible evidence}
+\node[box,text width=3.6cm] (mom)at(2.6,-4.2){Mamdani MOM\\normalized $\boldsymbol K'_{MOM,k}$};
+\node[box,text width=4.0cm] (smooth)at(8.6,-4.2){Smoothing memory\\$\boldsymbol K'_k=(1-\gamma)\boldsymbol K'_{k-1}$\\$+\gamma\boldsymbol K'_{MOM,k}$};
+\node[box,text width=3.2cm] (scale)at(14.5,-4.2){Affine gain mapping\\source min/max bounds};
+\node[box,text width=3.8cm] (blend)at(20.1,-4.2){IMC / fuzzy blend\\$\boldsymbol K_k=\beta\boldsymbol K_{fuzzy,k}$\\$+(1-\beta)\boldsymbol K_{IMC}$};
+\draw[process](mom.east)--(smooth.west);
+\draw[process](smooth.east)--(scale.west);
+\draw[process](scale.east)--(blend.west);
+\draw[process](blend.east)--(25.5,-4.2);
+\node[labelbox,anchor=south]at(24.0,-4.05){Stateful PID};
+\node[annotation,anchor=north west,text width=25cm]at(.2,-1.9){Design variables: $\beta\in[0,1]$ and $\gamma\in[0.05,1]$ for the optimization notebook. $\beta=1$ uses fuzzy gains only; $\beta=0$ uses the fixed IMC gains. Smaller $\gamma$ slows gain changes. These mechanisms are post-thesis extensions.};
+% Optimization loop with a clear frozen test boundary.
+\node[box,text width=3.7cm] (search)at(3,-8.0){Differential evolution\\candidate $(\beta,\gamma)$};
+\node[box,text width=4.1cm] (train)at(9,-8.0){Training scenarios only\\fresh controller for every run};
+\node[box,text width=3.5cm] (objective)at(15,-8.0){Training objective\\tracking + movement + overshoot};
+\draw[process](search.east)--(train.west);
+\draw[process](train.east)--(objective.west);
+\draw[process](objective.south)--(15,-10.3)--(3,-10.3)--(search.south);
+\node[labelbox]at(9,-10.3){Selection / mutation / crossover inside the fixed budget};
+\draw[measure,dashed,line width=1.1pt](18.3,-6.1)--(18.3,-11.1);
+\node[font=\sffamily\bfseries,text=measure,anchor=south]at(18.3,-5.9){Freeze};
+\node[box,text width=4.3cm] (test)at(22.4,-8.0){Held-out scenario\\changed plant, door timing and severity};
+\draw[process](objective.east)--(test.west);
+\draw[process](test.south)--(22.4,-10.2);
+\node[labelbox,anchor=north]at(22.4,-10.4){Report metrics; no retuning arrow};
+\node[panel,anchor=north west,text width=7.6cm]at(.3,-11.9){\textbf{What is held constant}\\Training scenarios, 3 s simulation sample period, actuator limits, random seeds and evaluation budget. Start each trajectory with a fresh controller; otherwise integral and scheduling history contaminate comparisons.};
+\node[panel,anchor=north west,text width=7.6cm]at(9.0,-11.9){\textbf{What the optimum means}\\Best sampled training objective under the declared search, not a global optimum or a physical performance guarantee. Preserve the evaluation count and compare alternatives under matched information and computation.};
+\node[panel,anchor=north west,text width=7.6cm]at(17.7,-11.9){\textbf{What must be reported}\\Independent IAE, overshoot, recovery and total variation, plus adverse outcomes. The historical 22\% / 3\% observations are reported source results; they are not reproduced by this synthetic search.};
+\atlasfooter{Workflow follows notebook 04 and FuzzyPID.step. The evaluation scenario is separated from candidate selection. Search settings, parameter distributions and the synthesized dense rule table remain documented research choices.}
+\end{tikzpicture}
+\end{document}
