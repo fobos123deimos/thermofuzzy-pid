@@ -1,0 +1,43 @@
+{
+  "checked_at_utc": "2026-11-05T15:20:48.339024Z",
+  "source_commit": "880d3f97dfd2859e158d2bb0a8d9ca1852d1c092",
+  "status": "passed",
+  "site": "https://fobos123deimos.github.io/thermofuzzy-pid/",
+  "public_html_pages_with_atlas_link": [
+    "burnin_pid_fuzzy.html"
+  ],
+  "public_tikz_images_matching_local_bytes": 6,
+  "atlas_sha256": "e6f62d9b0e534f84ab455a95b6785f8ce17d19b635bf067b9461c72e30a74003",
+  "atlas_bytes_match_local": true,
+  "artifact_sha256": {
+    "assets/thermal-control-atlas.pdf": "e6f62d9b0e534f84ab455a95b6785f8ce17d19b635bf067b9461c72e30a74003",
+    "assets/01-chamber-model.png": "d549b973a7454e9b7d7a773f43402ad534e2dfb64b81d738d4b9f36826517fcf",
+    "assets/02-identification.png": "8ab7b36936edbbdb6ff2208762ec4a2ea01b54563eba0350c277528f75391442",
+    "assets/03-pid-imc.png": "b55b495fc1f4c59d9e848932002c093693b11b45df420a2fbdbfd05eee6e84d2",
+    "assets/04-fuzzy-inference.png": "50444c5cf3b4fa5c28f23c3c7b3abb83d3edb1d921770eb5ca2aba0fa65efb1f",
+    "assets/05-robustness.png": "d2b7037c4c9c687b0aa4ef90f6a84fe06f5623e8453ba3d5379b48615293bc59",
+    "assets/06-optimization-validation.png": "a0216ae47d62fbb87ef31a83c7ce44d817f865def7c59a2322294ef9a8dbea72"
+  },
+  "api_validation": {
+    "html_pages": 8,
+    "modules": 7,
+    "public_definitions": 28,
+    "local_links_checked": 2827,
+    "illustration_files": 11,
+    "atlas_files": 1,
+    "status": "passed"
+  },
+  "scope": "Published HTML and exact PDF/PNG bytes checked against the local reviewed build. This is not a new browser or Colab execution claim.",
+  "workflow_runs": [
+    {
+      "url": "https://github.com/fobos123deimos/thermofuzzy-pid/actions/runs/42053536828",
+      "status": "success",
+      "name": "Build and publish Python API"
+    },
+    {
+      "url": "https://github.com/fobos123deimos/thermofuzzy-pid/actions/runs/42053537036",
+      "status": "success",
+      "name": "Python tests"
+    }
+  ]
+}
